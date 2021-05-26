@@ -1,10 +1,13 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(BorlanSpace CXX)
+project(BorlanStationAlpha CXX)
 
 find_package(SDL2 REQUIRED)
 if(NOT DEFINED SDL2_LIBRARIES)
     set(SDL2_LIBRARIES SDL2::SDL2)
+endif()
+if(WIN32)
+    set(SDL2_LIBRARIES -Wl,-Bstatic ${SDL2_LIBRARIES} -lstdc++ -lpthread -Wl,-Bdynamic -ldinput8 -ldxguid -ldxerr8 -luser32 -lgdi32 -lwinmm -limm32 -lole32 -loleaut32 -lshell32 -lversion -luuid -lsetupapi)
 endif()
 
 file(GLOB_RECURSE SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp" "${CMAKE_CURRENT_SOURCE_DIR}/src/*.h")
