@@ -3,16 +3,19 @@
 #include "cell.h"
 #include "map.h"
 #include "ecs.h"
+#include "mapgen.h"
 
 
 EntityComponentSystem<int, float> ecs;
 
 int main(int argc, char** argv)
 {
-    ecs.add(ecs.create(), 123);
+    auto e = ecs.create().add(123);
+    e.get<int>() = 5;
+    if (e.has<int>()) e.remove<int>();
 
-    map.resize({20, 20});
-    map(3, 3).type = Cell::WindowH;
+
+    Mapgen();
 
     Frontend frontend;
 

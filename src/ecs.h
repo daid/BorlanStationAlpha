@@ -7,28 +7,48 @@
 #include <limits>
 
 
-class Entity
-{
-public:
-    template<typename T> Entity& add(T&& value);
-private:
-    size_t id;
-
-    Entity(size_t _id) : id(_id) {}
-
-    template<typename... CS> friend class EntityComponentSystem;
-};
-
-
 template<typename... CS> class EntityComponentSystem
 {
 public:
+    class Entity
+    {
+    public:
+        template<typename T> Entity& add(const T& value)
+        {
+            ecs.add(*this, value);
+            return *this;
+        }
+
+        template<typename T> Entity& remove()
+        {
+            ecs.remove<T>(*this);
+            return *this;
+        }
+
+        template<typename T> bool has()
+        {
+            return ecs.has<T>(*this);
+        }
+
+        template<typename T> T& get()
+        {
+            return ecs.get<T>(*this);
+        }
+    private:
+        size_t id;
+        EntityComponentSystem<CS...>& ecs;
+
+        Entity(size_t _id, EntityComponentSystem<CS...>& _ecs) : id(_id), ecs(_ecs) {}
+
+        template<typename...> friend class EntityComponentSystem;
+    };
+
     Entity create()
     {
         auto new_id = next_entity_id++;
         assert(next_entity_id != 0);
         (std::get<ComponentStorage<CS>>(storage).entity_to_component_mapping.resize(next_entity_id, std::numeric_limits<size_t>::max()), ...);
-        return Entity(new_id);
+        return Entity(new_id, *this);
     }
 
     template<typename C> void add(Entity e, const C& value)
@@ -48,13 +68,13 @@ public:
 
     template<typename C> C& get(Entity e)
     {
-        return std::get<ComponentStorage<C>>(storage).has(e.id);
+        return std::get<ComponentStorage<C>>(storage).get(e.id);
     }
 private:
     template<typename C> class ComponentStorage
     {
     public:
-        std::vector<C> components;
+        std::vector<std::array<char, sizeof(C)>> components;
         std::vector<size_t> component_to_entity_mapping;
         std::vector<size_t> entity_to_component_mapping;
 
@@ -62,7 +82,8 @@ private:
         {
             assert(entity_to_component_mapping[id] == std::numeric_limits<size_t>::max());
             entity_to_component_mapping[id] = components.size();
-            components.push_back(value);
+            components.push_back({});
+            *std::launder(reinterpret_cast<C*>(&components.back())) = value;
             component_to_entity_mapping.push_back(id);
         }
 
@@ -71,7 +92,7 @@ private:
             auto idx = entity_to_component_mapping[id];
             if (idx == std::numeric_limits<size_t>::max())
                 return;
-            components[idx] = components.back();
+            *std::launder(reinterpret_cast<C*>(&components[idx])) = std::move(*std::launder(reinterpret_cast<C*>(&components.back())));
             component_to_entity_mapping[idx] = component_to_entity_mapping.back();
             entity_to_component_mapping[component_to_entity_mapping.back()] = idx;
             components.pop_back();
@@ -87,7 +108,7 @@ private:
         {
             auto idx = entity_to_component_mapping[id];
             assert(idx != std::numeric_limits<size_t>::max());
-            return components[idx];
+            return *std::launder(reinterpret_cast<C*>(&components[idx]));
         }
     };
     std::tuple<ComponentStorage<CS>...> storage;
