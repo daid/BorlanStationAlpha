@@ -2,9 +2,15 @@
 #include "frontend/frontend.h"
 #include "cell.h"
 #include "map.h"
+#include "ecs.h"
+
+
+EntityComponentSystem<int, float> ecs;
 
 int main(int argc, char** argv)
 {
+    ecs.add(ecs.create(), 123);
+
     map.resize({20, 20});
     map(3, 3).type = Cell::WindowH;
 
