@@ -17,6 +17,8 @@ public:
     uint32_t getInput();
 
     Vector2i beginDrawing();
+    void draw(int x, int y, char c, Color forground_color);
+    void setbg(int x, int y, Color background_color);
     void draw(int x, int y, char c, Color forground_color, Color background_color);
     void present();
 private:

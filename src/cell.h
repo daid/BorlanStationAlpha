@@ -2,22 +2,16 @@
 #define CELL_H
 
 #include "frontend/frontend.h"
+#include "components.h"
+
+#include <set>
 
 class Cell
 {
 public:
-    enum Type
-    {
-        Vacuum,
-        Floor,
-        Wall,
-        DoorH,
-        DoorV,
-        WindowH,
-        WindowV,
-    } type{Vacuum};
+    bool floor{false};
 
-    void draw(Frontend& frontend, int x, int y);
+    std::set<ECS::Entity> entities;
 };
 
 #endif//CELL_H

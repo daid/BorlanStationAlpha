@@ -11,6 +11,9 @@ ECS ecs;
 
 int main(int argc, char** argv)
 {
+    auto e = ecs.create().set(Position{{0, 0}}).set(Visual{'@', HsvColor(0, 100, 100)});
+    e.destroy();
+
     Mapgen();
 
     Frontend frontend;
@@ -23,13 +26,14 @@ int main(int argc, char** argv)
             for(int x=0; x<std::min(size.x, map.size().x); x++)
             {
                 Cell& cell = map(x, y);
-                cell.draw(frontend, x, y);
+                if (cell.floor)
+                    frontend.draw(x, y, '.', Color(255, 255, 255));
             }
         }
 
         for(auto&& [entity, visual, position] : ecs.query<Visual, Position>())
         {
-            frontend.draw(position.x, position.y, visual.c, visual.color, Color());
+            frontend.draw(position.x, position.y, visual.c, visual.color);
         }
         
         frontend.present();
