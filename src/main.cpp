@@ -5,15 +5,18 @@
 #include "ecs.h"
 #include "mapgen.h"
 
-
-EntityComponentSystem<int, float> ecs;
+using ECS = EntityComponentSystem<int, float>;
+ECS ecs;
 
 int main(int argc, char** argv)
 {
     auto e = ecs.create().add(123);
-    e.get<int>() = 5;
-    if (e.has<int>()) e.remove<int>();
-
+    if (e)
+        e.get<int>() = 5;
+    assert(e == ecs.toEntity(e.get<int>()));
+    assert(ECS::Entity() != e);
+    if (e.has<int>())
+        e.remove<int>();
 
     Mapgen();
 
