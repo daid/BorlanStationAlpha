@@ -1,4 +1,5 @@
-#include <stdio.h>
+#include <cstdio>
+#include <cassert>
 #include "frontend/frontend.h"
 #include "cell.h"
 #include "map.h"
@@ -10,13 +11,19 @@ ECS ecs;
 
 int main(int argc, char** argv)
 {
-    auto e = ecs.create().add(123);
+    auto e = ecs.create().set(123).set(1.1f);
     if (e)
         e.get<int>() = 5;
-    assert(e == ecs.toEntity(e.get<int>()));
     assert(ECS::Entity() != e);
-    if (e.has<int>())
+
+    for(auto&& [entity, value] : ecs.query<int>())
+    {
+        printf("%f %d\n", entity.get<float>(), value);
+        value = 10;
+    }
+    if (e.has<float>())
         e.remove<int>();
+    printf("Bla\n");
 
     Mapgen();
 

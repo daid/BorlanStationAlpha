@@ -1,135 +1,100 @@
 #pragma once
 
-#include <vector>
+#include <unordered_map>
+#include <memory>
 #include <cstdlib>
-#include <cassert>
-#include <tuple>
 #include <limits>
 
 
-template<typename... CS> class EntityComponentSystem
+using EntityIdType = size_t;
+class Entity;
+
+template<typename... CL> class EntityComponentSystem
 {
 public:
     class Entity
     {
     public:
-        Entity() : id(std::numeric_limits<size_t>::max()), ecs(nullptr) {}
+        Entity() : id(no_entity) {}
 
         bool operator==(const Entity& other) { return id == other.id; }
         bool operator!=(const Entity& other) { return id != other.id; }
         explicit operator bool() { return ecs; }
 
-        template<typename T> Entity& add(const T& value)
-        {
-            ecs->add(*this, value);
-            return *this;
-        }
+        template<typename T> bool has() { return ecs->has<T>(id); }
+        template<typename T> T& get() { return ecs->get<T>(id); }
+        template<typename T> Entity& set(const T& value) { ecs->set(id, value); return *this; }
+        template<typename T> Entity& remove() { ecs->remove<T>(id); return *this; }
 
-        template<typename T> Entity& remove()
-        {
-            ecs->remove<T>(*this);
-            return *this;
-        }
+        void destroy() { ecs->destroy(id); }
 
-        template<typename T> bool has()
-        {
-            return ecs->has<T>(*this);
-        }
-
-        template<typename T> T& get()
-        {
-            return ecs->get<T>(*this);
-        }
     private:
-        size_t id;
-        EntityComponentSystem<CS...>* ecs;
+        Entity(EntityIdType _id, EntityComponentSystem* _ecs) : id(_id), ecs(_ecs) {}
+        static constexpr EntityIdType no_entity = std::numeric_limits<EntityIdType>::max();
 
-        Entity(size_t _id, EntityComponentSystem<CS...>* _ecs) : id(_id), ecs(_ecs) {}
+        EntityIdType id;
+        EntityComponentSystem* ecs;
 
-        template<typename...> friend class EntityComponentSystem;
+        friend class EntityComponentSystem;
     };
 
     Entity create()
     {
-        auto new_id = next_entity_id++;
-        assert(next_entity_id != 0);
-        (std::get<ComponentStorage<CS>>(storage).entity_to_component_mapping.resize(next_entity_id, std::numeric_limits<size_t>::max()), ...);
-        return Entity(new_id, this);
+        assert(next_id != Entity::no_entity);
+        return Entity(next_id++, this);
     }
-
-    template<typename C> void add(Entity e, const C& value)
-    {
-        std::get<ComponentStorage<C>>(storage).add(e.id, value);
-    }
-
-    template<typename C> void remove(Entity e)
-    {
-        std::get<ComponentStorage<C>>(storage).remove(e.id);
-    }
-
-    template<typename C> bool has(Entity e)
-    {
-        return std::get<ComponentStorage<C>>(storage).has(e.id);
-    }
-
-    template<typename C> C& get(Entity e)
-    {
-        return std::get<ComponentStorage<C>>(storage).get(e.id);
-    }
-
-    template<typename C> Entity toEntity(const C& c)
-    {
-        return Entity(std::get<ComponentStorage<C>>(storage).toEntity(c), this);
-    }
-private:
-    template<typename C> class ComponentStorage
+    
+    template<typename T> class Query
     {
     public:
-        std::vector<std::array<char, sizeof(C)>> components;
-        std::vector<size_t> component_to_entity_mapping;
-        std::vector<size_t> entity_to_component_mapping;
-
-        void add(size_t id, const C& value)
+        class Iterator
         {
-            assert(entity_to_component_mapping[id] == std::numeric_limits<size_t>::max());
-            entity_to_component_mapping[id] = components.size();
-            components.emplace_back();
-            *std::launder(reinterpret_cast<C*>(&components.back())) = value;
-            component_to_entity_mapping.push_back(id);
-        }
+        public:
+            Iterator& operator++() { iter++; return *this; }
+            bool operator!=(const Iterator& other) const { return iter != other.iter; }
+            std::pair<Entity, T&> operator*() { return {Entity(iter->first, ecs), iter->second}; }
+        private:
+            using iter_type = typename std::unordered_map<EntityIdType, T>::iterator;
+            Iterator(iter_type _iter, EntityComponentSystem* _ecs) : iter(_iter), ecs(_ecs) {}
 
-        void remove(size_t id)
-        {
-            auto idx = entity_to_component_mapping[id];
-            if (idx == std::numeric_limits<size_t>::max())
-                return;
-            *std::launder(reinterpret_cast<C*>(&components[idx])) = std::move(*std::launder(reinterpret_cast<C*>(&components.back())));
-            component_to_entity_mapping[idx] = component_to_entity_mapping.back();
-            entity_to_component_mapping[component_to_entity_mapping.back()] = idx;
-            components.pop_back();
-            component_to_entity_mapping.pop_back();
-        }
+            iter_type iter;
+            EntityComponentSystem* ecs;
 
-        bool has(size_t id)
-        {
-            return entity_to_component_mapping[id] != std::numeric_limits<size_t>::max();
-        }
+            friend class Query;
+        };
 
-        C& get(size_t id)
-        {
-            auto idx = entity_to_component_mapping[id];
-            assert(idx != std::numeric_limits<size_t>::max());
-            return *std::launder(reinterpret_cast<C*>(&components[idx]));
-        }
-
-        size_t toEntity(const C& c)
-        {
-            auto ptr = std::launder(reinterpret_cast<const std::array<char, sizeof(C)>*>(&c));
-            auto idx = ptr - components.data();
-            return component_to_entity_mapping[idx];
-        }
+        Query(EntityComponentSystem* _ecs) : ecs(_ecs) {}
+        
+        Iterator begin() { return {std::get<ComponentStorage<T>>(ecs->storage).data.begin(), ecs}; }
+        Iterator end() { return {std::get<ComponentStorage<T>>(ecs->storage).data.end(), ecs}; }
+    private:
+        EntityComponentSystem* ecs;
     };
-    std::tuple<ComponentStorage<CS>...> storage;
 
-    size_t next_entity_id{0};
+    template<typename T> Query<T> query() { return Query<T>(this); }
+private:
+    template<typename T> bool has(EntityIdType id) {  return std::get<ComponentStorage<T>>(storage).has(id); }
+    template<typename T> T& get(EntityIdType id) { return std::get<ComponentStorage<T>>(storage).get(id); }
+    template<typename T> void set(EntityIdType id, const T& value) { std::get<ComponentStorage<T>>(storage).set(id, value); }
+    template<typename T> void remove(EntityIdType id) { std::get<ComponentStorage<T>>(storage).remove(id); }
+
+    void destroy(EntityIdType id)
+    {
+        (std::get<ComponentStorage<CL>>(storage).remove(id), ...);
+    }
+
+    template<typename T> class ComponentStorage {
+    public:
+        std::unordered_map<EntityIdType, T> data;
+
+        bool has(EntityIdType id) {  return data.find(id) != data.end(); }
+        T& get(EntityIdType id) { return data.find(id)->second; }
+        void set(EntityIdType id, const T& value) { data[id] = value; }
+        void remove(EntityIdType id) { data.erase(id); }
+    };
+
+    EntityIdType next_id{};
+    std::tuple<ComponentStorage<CL>...> storage;
+
+    friend class Entity;
 };
