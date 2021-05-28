@@ -5,26 +5,12 @@
 #include "map.h"
 #include "ecs.h"
 #include "mapgen.h"
+#include "components.h"
 
-using ECS = EntityComponentSystem<int, float>;
 ECS ecs;
 
 int main(int argc, char** argv)
 {
-    auto e = ecs.create().set(123).set(1.1f);
-    if (e)
-        e.get<int>() = 5;
-    assert(ECS::Entity() != e);
-
-    for(auto&& [entity, value] : ecs.query<int>())
-    {
-        printf("%f %d\n", entity.get<float>(), value);
-        value = 10;
-    }
-    if (e.has<float>())
-        e.remove<int>();
-    printf("Bla\n");
-
     Mapgen();
 
     Frontend frontend;
@@ -40,6 +26,12 @@ int main(int argc, char** argv)
                 cell.draw(frontend, x, y);
             }
         }
+
+        for(auto&& [entity, visual, position] : ecs.query<Visual, Position>())
+        {
+            frontend.draw(position.x, position.y, visual.c, visual.color, Color());
+        }
+        
         frontend.present();
 
         auto input = frontend.getInput();

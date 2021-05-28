@@ -44,18 +44,41 @@ public:
         return Entity(next_id++, this);
     }
     
-    template<typename T> class Query
+    template<typename T, typename... ARGS> class Query
     {
     public:
         class Iterator
         {
         public:
-            Iterator& operator++() { iter++; return *this; }
+            Iterator& operator++() { iter++; checkSkip(); return *this; }
             bool operator!=(const Iterator& other) const { return iter != other.iter; }
-            std::pair<Entity, T&> operator*() { return {Entity(iter->first, ecs), iter->second}; }
+            std::tuple<Entity, T&, ARGS&...> operator*() { return {Entity(iter->first, ecs), iter->second, ecs->get<ARGS>(iter->first)...}; }
         private:
             using iter_type = typename std::unordered_map<EntityIdType, T>::iterator;
-            Iterator(iter_type _iter, EntityComponentSystem* _ecs) : iter(_iter), ecs(_ecs) {}
+            Iterator(iter_type _iter, EntityComponentSystem* _ecs) : iter(_iter), ecs(_ecs) { checkSkip(); }
+
+            void checkSkip()
+            {
+                if constexpr (sizeof...(ARGS) > 0)
+                {
+                    if (iter == std::get<ComponentStorage<T>>(ecs->storage).data.end())
+                        return;
+                    if (checkSkipPartial<ARGS...>())
+                    {
+                        iter++;
+                        checkSkip();
+                    }
+                }
+            }
+
+            template<typename T2, typename... ARGS2> bool checkSkipPartial()
+            {
+                if (!ecs->has<T2>(iter->first))
+                    return true;
+                if constexpr (sizeof...(ARGS2) > 0)
+                    return checkSkipPartial<ARGS2...>();
+                return false;
+            }
 
             iter_type iter;
             EntityComponentSystem* ecs;
@@ -71,7 +94,7 @@ public:
         EntityComponentSystem* ecs;
     };
 
-    template<typename T> Query<T> query() { return Query<T>(this); }
+    template<typename... ARGS> Query<ARGS...> query() { return Query<ARGS...>(this); }
 private:
     template<typename T> bool has(EntityIdType id) {  return std::get<ComponentStorage<T>>(storage).has(id); }
     template<typename T> T& get(EntityIdType id) { return std::get<ComponentStorage<T>>(storage).get(id); }

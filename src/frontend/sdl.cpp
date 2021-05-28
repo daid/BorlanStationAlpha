@@ -59,7 +59,7 @@ Vector2i Frontend::beginDrawing()
     return size;
 }
 
-void Frontend::draw(int x, int y, char c, uint32_t forground_color, uint32_t background_color)
+void Frontend::draw(int x, int y, char c, Color forground_color, Color background_color)
 {
     if (x < 0 || y < 0) return;
     if (x >= buffer.size().x || y >= buffer.size().y) return;
@@ -82,10 +82,10 @@ void Frontend::present()
         for(int x=0; x<size.x; x++)
         {
             Tile t = buffer(x, y);
-            SDL_SetTextureColorMod(font_texture, (t.forground_color >> 16) & 0xFF, (t.forground_color >> 8) & 0xFF, (t.forground_color >> 0) & 0xFF);
+            SDL_SetTextureColorMod(font_texture, t.forground_color.r, t.forground_color.g, t.forground_color.b);
             SDL_Rect src{(t.c & 0x0F) * 8, ((t.c >> 4) & 0x0F) * 8, 8, 8};
             SDL_Rect dst{x * 8 * scale + xoffset, y * 8 * scale + yoffset, 8 * scale, 8 * scale};
-            SDL_SetRenderDrawColor(renderer, (t.background_color >> 16) & 0xFF, (t.background_color >> 8) & 0xFF, (t.background_color >> 0) & 0xFF, 0xFF);
+            SDL_SetRenderDrawColor(renderer, t.background_color.r, t.background_color.g, t.background_color.b, 0xFF);
             SDL_RenderFillRect(renderer, &dst);
             SDL_RenderCopy(renderer, font_texture, &src, &dst);
         }
