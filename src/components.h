@@ -18,6 +18,9 @@ public:
     void onDestroy(EntityBase e);
 };
 
+class Solid {};
+class BlockVision {};
+
 class Player
 {
 public:
@@ -32,6 +35,7 @@ public:
 
 using ECS = EntityComponentSystem<
     Position, Health, Visual,
+    Solid, BlockVision,
     Player
 >;
 extern ECS ecs;

@@ -121,10 +121,10 @@ public:
         EntityComponentSystem* ecs;
     };
 
-    template<typename T> bool has(EntityBase& e) const {  return std::get<ComponentStorage<T>>(storage).has(e.id); }
-    template<typename T> T& get(EntityBase& e) { return std::get<ComponentStorage<T>>(storage).get(e.id); }
-    template<typename T> void set(EntityBase& e, const T& value) { std::get<ComponentStorage<T>>(storage).set(e.id, value); }
-    template<typename T> void remove(EntityBase& e) { std::get<ComponentStorage<T>>(storage).remove(e.id); }
+    template<typename T> bool has(const EntityBase& e) const {  return std::get<ComponentStorage<T>>(storage).has(e.id); }
+    template<typename T> T& get(const EntityBase& e) { return std::get<ComponentStorage<T>>(storage).get(e.id); }
+    template<typename T> void set(const EntityBase& e, const T& value) { std::get<ComponentStorage<T>>(storage).set(e.id, value); }
+    template<typename T> void remove(const EntityBase& e) { std::get<ComponentStorage<T>>(storage).remove(e.id); }
     void destroy(EntityBase& e)
     {
         (std::get<ComponentStorage<CL>>(storage).remove(e.id), ...);

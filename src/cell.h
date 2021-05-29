@@ -6,10 +6,12 @@
 
 #include <set>
 
+
 class Cell
 {
 public:
     bool floor{false};
+    bool visible{false};
 
     std::set<ECS::Entity> entities;
 };

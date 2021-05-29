@@ -1,5 +1,6 @@
 #include "mapgen.h"
 #include "map.h"
+#include "components.h"
 #include <random>
 
 
@@ -49,6 +50,20 @@ Mapgen::Mapgen()
             door_options.push_back({position + Vector2i(size.x / 2, size.y - 1), Down});
             door_options.push_back({position + Vector2i(0, size.x / 2), Left});
             door_options.push_back({position + Vector2i(size.x - 1, size.y / 2), Right});
+        }
+    }
+
+    for(auto& room : rooms)
+    {
+        for(int x=0; x<room.size.x; x++)
+        {
+            ecs.create().set(Solid{}).set(BlockVision{}).set(Position{{room.position.x+x, room.position.y}}).set(Visual{'#', {0, 0, 100}});
+            ecs.create().set(Solid{}).set(BlockVision{}).set(Position{{room.position.x+x, room.position.y+room.size.y-1}}).set(Visual{'#', {0, 0, 100}});
+        }
+        for(int y=0; y<room.size.y; y++)
+        {
+            ecs.create().set(Solid{}).set(BlockVision{}).set(Position{{room.position.x, room.position.y+y}}).set(Visual{'#', {0, 0, 100}});
+            ecs.create().set(Solid{}).set(BlockVision{}).set(Position{{room.position.x+room.size.x-1, room.position.y+y}}).set(Visual{'#', {0, 0, 100}});
         }
     }
 }
