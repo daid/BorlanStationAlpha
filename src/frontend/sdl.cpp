@@ -10,8 +10,7 @@ Frontend::Frontend()
 {
 #ifdef __WIN32
     //On Vista or newer windows, let the OS know we are DPI aware, so we won't have odd scaling issues.
-    if (void* user_dll = SDL_LoadObject("USER32.DLL"))
-    {
+    if (void* user_dll = SDL_LoadObject("USER32.DLL")) {
         if (auto SetProcessDPIAware = reinterpret_cast<int(__stdcall *)(void)>(SDL_LoadFunction(user_dll, "SetProcessDPIAware")))
             SetProcessDPIAware();
     }
@@ -27,12 +26,21 @@ Frontend::Frontend()
 
 uint32_t Frontend::getInput()
 {
-    while(1)
-    {
+    while(1) {
         SDL_Event event;
         SDL_WaitEvent(&event);
         if (event.type == SDL_TEXTINPUT && strlen(event.text.text) == 1)
             return event.text.text[0];
+        if (event.type == SDL_KEYDOWN) {
+            if (event.key.keysym.sym == SDLK_RIGHT) return INPUT_RIGHT;
+            if (event.key.keysym.sym == SDLK_LEFT) return INPUT_LEFT;
+            if (event.key.keysym.sym == SDLK_DOWN) return INPUT_DOWN;
+            if (event.key.keysym.sym == SDLK_UP) return INPUT_UP;
+            if (event.key.keysym.sym == SDLK_KP_6 && !(event.key.keysym.mod & KMOD_NUM)) return INPUT_RIGHT;
+            if (event.key.keysym.sym == SDLK_KP_4 && !(event.key.keysym.mod & KMOD_NUM)) return INPUT_LEFT;
+            if (event.key.keysym.sym == SDLK_KP_2 && !(event.key.keysym.mod & KMOD_NUM)) return INPUT_DOWN;
+            if (event.key.keysym.sym == SDLK_KP_8 && !(event.key.keysym.mod & KMOD_NUM)) return INPUT_UP;
+        }
         if (event.type == SDL_QUIT)
             return INPUT_QUIT;
         if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED)
@@ -46,11 +54,10 @@ Vector2i Frontend::beginDrawing()
     SDL_GetWindowSize(window, &w, &h);
     scale = 1;
     Vector2i size;
-    while(1)
-    {
+    while(1) {
         size.x = ((w + 7) / 8 + scale - 1) / scale;
         size.y = ((h + 7) / 8 + scale - 1) / scale;
-        if (size.x < 60 || size.y < 60)
+        if (size.x < 100 || size.y < 100)
             break;
         scale += 1;
     }
@@ -96,15 +103,13 @@ void Frontend::present()
     SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0x00);
     SDL_RenderClear(renderer);
     auto size = buffer.size();
-    for(int y=0; y<size.y; y++)
-    {
-        for(int x=0; x<size.x; x++)
-        {
+    for(int y=0; y<size.y; y++) {
+        for(int x=0; x<size.x; x++) {
             Tile t = buffer(x, y);
-            SDL_SetTextureColorMod(font_texture, t.forground_color.r, t.forground_color.g, t.forground_color.b);
+            SDL_SetTextureColorMod(font_texture, t.forground_color.r * 255, t.forground_color.g * 255, t.forground_color.b * 255);
             SDL_Rect src{(t.c & 0x0F) * 8, ((t.c >> 4) & 0x0F) * 8, 8, 8};
             SDL_Rect dst{x * 8 * scale + xoffset, y * 8 * scale + yoffset, 8 * scale, 8 * scale};
-            SDL_SetRenderDrawColor(renderer, t.background_color.r, t.background_color.g, t.background_color.b, 0xFF);
+            SDL_SetRenderDrawColor(renderer, t.background_color.r * 255, t.background_color.g * 255, t.background_color.b * 255, 255);
             SDL_RenderFillRect(renderer, &dst);
             SDL_RenderCopy(renderer, font_texture, &src, &dst);
         }

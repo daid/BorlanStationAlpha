@@ -20,6 +20,11 @@ public:
 
 class Solid {};
 class BlockVision {};
+class Light {
+public:
+    float distance;
+    Color color{1,1,1};
+};
 
 class Player
 {
@@ -31,11 +36,12 @@ class Visual
 public:
     char c;
     HsvColor color;
+    int priority{0};
 };
 
 using ECS = EntityComponentSystem<
     Position, Health, Visual,
-    Solid, BlockVision,
+    Solid, BlockVision, Light,
     Player
 >;
 extern ECS ecs;

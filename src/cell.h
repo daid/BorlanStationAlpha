@@ -12,6 +12,8 @@ class Cell
 public:
     bool floor{false};
     bool visible{false};
+    Color light_level{};
+    char last_seen_as{' '};
 
     std::set<ECS::Entity> entities;
 };

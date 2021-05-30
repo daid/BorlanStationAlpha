@@ -7,7 +7,11 @@
 #include "array2.h"
 #include "color.h"
 
-#define INPUT_QUIT 0xF0000000
+#define INPUT_QUIT  0xF0000000
+#define INPUT_RIGHT 0x10000001
+#define INPUT_LEFT  0x10000002
+#define INPUT_DOWN  0x10000003
+#define INPUT_UP    0x10000004
 
 class Frontend
 {

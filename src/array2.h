@@ -19,7 +19,14 @@ public:
     {
         _size = new_size;
         data.clear();
-        data.resize(_size.x * _size.y);
+        data.resize(_size.x * _size.y, {});
+    }
+
+    void resize(Vector2i new_size, const T& fill)
+    {
+        _size = new_size;
+        data.clear();
+        data.resize(_size.x * _size.y, fill);
     }
 
     T& operator()(Vector2i position)
@@ -33,9 +40,9 @@ public:
     }
 
     iterator begin() { return data.begin(); }
-    iterator end() { return data.begin(); }
+    iterator end() { return data.end(); }
     const_iterator begin() const { return data.begin(); }
-    const_iterator end() const { return data.begin(); }
+    const_iterator end() const { return data.end(); }
 
 private:
     Vector2i _size;

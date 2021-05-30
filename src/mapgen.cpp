@@ -1,14 +1,21 @@
 #include "mapgen.h"
 #include "map.h"
 #include "components.h"
-#include <random>
+#include "random.h"
 
 
 Mapgen::Mapgen()
 {
-    std::mt19937_64 gen;
-
     map.resize({80, 80});
+    data.resize({80, 80}, Unset);
+    for(int x=0; x<data.size().x; x++) {
+        data(x, 0) = Vacuum;
+        data(x, data.size().y - 1) = Vacuum;
+    }
+    for(int y=0; y<data.size().y; y++) {
+        data(0, y) = Vacuum;
+        data(data.size().x - 1, y) = Vacuum;
+    }
 
     enum Direction {
         Up, Down, Left, Right,
@@ -16,54 +23,98 @@ Mapgen::Mapgen()
     struct DoorInfo{
         Vector2i position;
         Direction direction;
+        bool expect_hallway;
     };
     std::vector<DoorInfo> door_options;
 
     Vector2i position{30, 30};
-    Vector2i size{5, 5};
+    Vector2i size{irandom(5, 10), irandom(5, 10)};
     addRoom(position, size);
-    door_options.push_back({position + Vector2i(size.x / 2, 0), Up});
-    door_options.push_back({position + Vector2i(size.x / 2, size.y - 1), Down});
-    door_options.push_back({position + Vector2i(0, size.x / 2), Left});
-    door_options.push_back({position + Vector2i(size.x - 1, size.y / 2), Right});
+    door_options.push_back({position + Vector2i(size.x / 2, 0), Up, true});
+    door_options.push_back({position + Vector2i(size.x / 2, size.y - 1), Down, true});
+    door_options.push_back({position + Vector2i(0, size.x / 2), Left, true});
+    door_options.push_back({position + Vector2i(size.x - 1, size.y / 2), Right, true});
 
-    while(!door_options.empty())
-    {
-        int idx = std::uniform_int_distribution<>{0, int(door_options.size() - 1)}(gen);
+    while(!door_options.empty()) {
+        int idx = irandom(0, int(door_options.size() - 1));
         auto door = door_options[idx];
         door_options[idx] = door_options[door_options.size() - 1];
         door_options.pop_back();
 
-        size.x = std::uniform_int_distribution<>{3, 10}(gen);
-        size.y = std::uniform_int_distribution<>{3, 10}(gen);
+        size.x = irandom(5, 12);
+        size.y = irandom(5, 12);
+        if (door.expect_hallway && irandom(0, 100) < 40) door.expect_hallway = false;
+        if (door.expect_hallway) {
+            size.x = size.y = std::max(size.x, size.y);
+            if (door.direction == Up || door.direction == Down) size.x = 4; else size.y = 4;
+        }
         position = door.position;
-        switch(door.direction)
-        {
+        switch(door.direction) {
         case Up: position.x -= size.x / 2; position.y -= size.y; break;
         case Down: position.x -= size.x / 2; position.y += 1; break;
         case Left: position.x -= size.x; position.y -= size.y / 2; break;
         case Right: position.y -= size.y / 2; position.x += 1; break;
         }
-        if (addRoom(position, size))
-        {
-            door_options.push_back({position + Vector2i(size.x / 2, 0), Up});
-            door_options.push_back({position + Vector2i(size.x / 2, size.y - 1), Down});
-            door_options.push_back({position + Vector2i(0, size.x / 2), Left});
-            door_options.push_back({position + Vector2i(size.x - 1, size.y / 2), Right});
+        if (addRoom(position, size)) {
+            ecs.create().set(Position{door.position}).set(Visual{'X', HsvColor(0, 0, 100), 1});
+            if (door.expect_hallway) {
+                rooms.back().hallway = true;
+                if (door.direction == Up || door.direction == Down) {
+                    door_options.push_back({position + Vector2i(irandom(1, size.x - 2), 0), Up, false});
+                    door_options.push_back({position + Vector2i(irandom(1, size.x - 2), size.y - 1), Down, false});
+                } else {
+                    door_options.push_back({position + Vector2i(0, irandom(1, size.y - 2)), Left, false});
+                    door_options.push_back({position + Vector2i(size.x - 1, irandom(1, size.y - 2)), Right, false});
+                }
+            } else {
+                door_options.push_back({position + Vector2i(irandom(1, size.x - 2), 0), Up, true});
+                door_options.push_back({position + Vector2i(irandom(1, size.x - 2), size.y - 1), Down, true});
+                door_options.push_back({position + Vector2i(0, irandom(1, size.y - 2)), Left, true});
+                door_options.push_back({position + Vector2i(size.x - 1, irandom(1, size.y - 2)), Right, true});
+            }
         }
     }
 
-    for(auto& room : rooms)
-    {
-        for(int x=0; x<room.size.x; x++)
-        {
-            ecs.create().set(Solid{}).set(BlockVision{}).set(Position{{room.position.x+x, room.position.y}}).set(Visual{'#', {0, 0, 100}});
-            ecs.create().set(Solid{}).set(BlockVision{}).set(Position{{room.position.x+x, room.position.y+room.size.y-1}}).set(Visual{'#', {0, 0, 100}});
+    for(auto& room : rooms) {
+        if (room.hallway) {
+            int flags = 0;
+            for(int x=1; x<room.size.x-1; x++) {
+                if (data(room.position.x+x, room.position.y-1) > Vacuum) flags |= 0x01;
+                if (data(room.position.x+x, room.position.y+room.size.y) > Vacuum) flags |= 0x02;
+            }
+            for(int y=1; y<room.size.y-1; y++) {
+                if (data(room.position.x-1, room.position.y+y) > Vacuum) flags |= 0x04;
+                if (data(room.position.x+room.size.x, room.position.y+y) > Vacuum) flags |= 0x08;
+            }
+            if (flags == 0x01 || flags == 0x02 || flags == 0x04 || flags == 0x08)
+            {
+                //for(int y=0; y<room.size.y; y++)
+                //    for(int x=0; x<room.size.x; x++)
+                //        data(room.position + Vector2i(x, y)) = Unset;
+                continue;
+            }
         }
-        for(int y=0; y<room.size.y; y++)
+        for(int x=room.position.x; x<room.position.x+room.size.x; x++) {
+            setWallH({x, room.position.y});
+            setWallH({x, room.position.y+room.size.y-1});
+        }
+        for(int y=room.position.y; y<room.position.y+room.size.y; y++)
         {
-            ecs.create().set(Solid{}).set(BlockVision{}).set(Position{{room.position.x, room.position.y+y}}).set(Visual{'#', {0, 0, 100}});
-            ecs.create().set(Solid{}).set(BlockVision{}).set(Position{{room.position.x+room.size.x-1, room.position.y+y}}).set(Visual{'#', {0, 0, 100}});
+            setWallV({room.position.x, y});
+            setWallV({room.position.x+room.size.x-1, y});
+        }
+
+        ecs.create().set(Light{5, HsvColor(irandom(0, 360), 100, 100)}).set(Position{room.position + room.size / 2});
+    }
+    for(int y=0; y<data.size().y; y++) {
+        for(int x=0; x<data.size().x; x++) {
+            map(x, y).floor = true;
+            switch(data(x, y)) {
+            case Unset: map(x, y).floor = false; break;
+            case Vacuum: map(x, y).floor = false; break;
+            case Floor: break;
+            case Wall: ecs.create().set(Solid{}).set(BlockVision{}).set(Position{{x, y}}).set(Visual{'#', {0, 0, 100}}); break;
+            }
         }
     }
 }
@@ -74,11 +125,25 @@ bool Mapgen::addRoom(Vector2i position, Vector2i size)
         return false;
     for(int x=0; x<size.x; x++)
         for(int y=0; y<size.y; y++)
-            if (map(position.x + x, position.y + y).floor)
+            if (data(position.x + x, position.y + y) != Unset)
                 return false;
     for(int x=0; x<size.x; x++)
         for(int y=0; y<size.y; y++)
-            map(position.x + x, position.y + y).floor = true;
-    rooms.push_back({position, size});
+            data(position.x + x, position.y + y) = Floor;
+    rooms.push_back({position, size, false});
     return true;
+}
+
+void Mapgen::setWallH(Vector2i position)
+{
+    if (data(position+Vector2i(-1,-1)) == Wall && data(position+Vector2i(0,-1)) == Wall && data(position+Vector2i(1,-1)) == Wall) return;
+    if (data(position+Vector2i(-1, 1)) == Wall && data(position+Vector2i(0, 1)) == Wall && data(position+Vector2i(1, 1)) == Wall) return;
+    data(position) = Wall;
+}
+
+void Mapgen::setWallV(Vector2i position)
+{
+    if (data(position+Vector2i(-1, 1)) == Wall && data(position+Vector2i(-1, 0)) == Wall && data(position+Vector2i(-1,-1)) == Wall) return;
+    if (data(position+Vector2i( 1, 1)) == Wall && data(position+Vector2i( 1, 0)) == Wall && data(position+Vector2i( 1,-1)) == Wall) return;
+    data(position) = Wall;
 }
