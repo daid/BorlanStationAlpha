@@ -64,12 +64,12 @@ void Map::fovStep(Vector2i center, Vector2i dir, int radius, int row, float fmin
     fovStep(center, dir, radius, row + 1, fmin, fmax, callback);
 }
 
-void Position::onCreate(EntityBase e)
+void Position::onCreate(ecs::EntityBase e)
 {
-    map(x, y).entities.insert(ecs.upgrade(e));
+    map(x, y).entities.insert(engine.upgrade(e));
 }
 
-void Position::onDestroy(EntityBase e)
+void Position::onDestroy(ecs::EntityBase e)
 {
-    map(x, y).entities.erase(ecs.upgrade(e));
+    map(x, y).entities.erase(engine.upgrade(e));
 }

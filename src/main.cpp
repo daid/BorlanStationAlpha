@@ -9,7 +9,7 @@
 
 #include "system/vision.h"
 
-ECS ecs;
+ECS engine;
 
 bool actionMove(ECS::Entity e, Vector2i offset)
 {
@@ -25,7 +25,7 @@ int main(int argc, char** argv)
 {
     Mapgen();
 
-    auto e = ecs.create();
+    auto e = engine.create();
     e.set(Position{{12, 4}}).set(Visual{'@', HsvColor(0, 0, 75), 10}).set(Player{});
     e.set(Light{15, HsvColor(0, 0, 50)});
 

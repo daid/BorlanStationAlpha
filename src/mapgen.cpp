@@ -130,7 +130,7 @@ Mapgen::Mapgen()
             setWallV({room.position.x+room.size.x-1, y});
         }
 
-        ecs.create().set(Light{5, HsvColor(irandom(0, 360), 100, 100)}).set(Position{room.position + room.size / 2});
+        engine.create().set(Light{5, HsvColor(irandom(0, 360), 100, 100)}).set(Position{room.position + room.size / 2});
     }
     for(int y=0; y<data.size().y; y++) {
         for(int x=0; x<data.size().x; x++) {
@@ -139,7 +139,7 @@ Mapgen::Mapgen()
             case Unset: map(x, y).floor = false; break;
             case Vacuum: map(x, y).floor = false; break;
             case Floor: break;
-            case Wall: ecs.create().set(Solid{}).set(BlockVision{}).set(Position{{x, y}}).set(Visual{'#', {0, 0, 100}}); break;
+            case Wall: engine.create().set(Solid{}).set(BlockVision{}).set(Position{{x, y}}).set(Visual{'#', {0, 0, 100}}); break;
             }
         }
     }

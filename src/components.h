@@ -14,8 +14,8 @@ public:
 class Position : public Vector2i
 {
 public:
-    void onCreate(EntityBase e);
-    void onDestroy(EntityBase e);
+    void onCreate(ecs::EntityBase e);
+    void onDestroy(ecs::EntityBase e);
 };
 
 class Solid {};
@@ -39,9 +39,9 @@ public:
     int priority{0};
 };
 
-using ECS = EntityComponentSystem<
+using ECS = ecs::Engine<
     Position, Health, Visual,
     Solid, BlockVision, Light,
     Player
 >;
-extern ECS ecs;
+extern ECS engine;
