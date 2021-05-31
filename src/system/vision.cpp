@@ -8,16 +8,19 @@ void runVisionSystem()
         cell.visible = false;
         cell.light_level = Color{};
 
-        cell.visible = true;
-        cell.light_level = Color{0.3,0.3,0.3};
+        //cell.visible = true;
+        //cell.light_level = Color{0.3,0.3,0.3};
     }
     for(auto&& [e, light, position] : ecs.query<Light, Position>()) {
         map.visitFieldOfView(position, light.distance, [&light, &position](Vector2i p) {
             if (map.visionBlocked(p) && p != position) return;
             auto dist = (Vector2f(p) - Vector2f(position)).length();
-            auto f = std::min(0.5f, (light.distance - dist) / (light.distance * 0.5f));
-            if (std::abs(p.x - position.x) == std::abs(p.y - position.y) && position != p) f *= 0.5f;
-            map(p).light_level += light.color * f;
+            auto f = std::min(1.0f, (light.distance - dist) / (light.distance * 0.5f));
+            //if (std::abs(p.x - position.x) == std::abs(p.y - position.y) && position != p) f *= 0.5f;
+            //map(p).light_level += light.color * f;
+            map(p).light_level.r = std::max(map(p).light_level.r, light.color.r * f);
+            map(p).light_level.g = std::max(map(p).light_level.g, light.color.g * f);
+            map(p).light_level.b = std::max(map(p).light_level.b, light.color.b * f);
         });
     }
     for(auto&& [e, player, position] : ecs.query<Player, Position>()) {

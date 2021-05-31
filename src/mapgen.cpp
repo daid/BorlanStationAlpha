@@ -7,7 +7,7 @@
 Mapgen::Mapgen()
 {
     map.resize({80, 80});
-    data.resize({80, 80}, Unset);
+    data.resize(map.size(), Unset);
     for(int x=0; x<data.size().x; x++) {
         data(x, 0) = Vacuum;
         data(x, data.size().y - 1) = Vacuum;
@@ -96,8 +96,12 @@ Mapgen::Mapgen()
                 if (flags == 0x08) { dir = Vector2i{-1, 0}; pos += Vector2i{-1, room.size.y / 2}; }
 
                 int extend = 0;
-                for(int n=0; n<5; n++)
-                    if (data(pos + dir * (n + 1)) > Vacuum) { extend = n + 1; break; }
+                for(int n=0; n<15; n++) {
+                    auto p = pos + dir * (n + 1);
+                    if (p.x < 0 || p.x >= data.size().x) break;
+                    if (p.y < 0 || p.y >= data.size().y) break;
+                    if (data(p) > Vacuum) { extend = n + 1; break; }
+                }
 
                 if (extend)
                 {
