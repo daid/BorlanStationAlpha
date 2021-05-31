@@ -56,7 +56,6 @@ Mapgen::Mapgen()
         case Right: position.y -= size.y / 2; position.x += 1; break;
         }
         if (addRoom(position, size)) {
-            ecs.create().set(Position{door.position}).set(Visual{'X', HsvColor(0, 0, 100), 1});
             if (door.expect_hallway) {
                 rooms.back().hallway = true;
                 if (door.direction == Up || door.direction == Down) {
@@ -77,6 +76,7 @@ Mapgen::Mapgen()
 
     for(auto& room : rooms) {
         if (room.hallway) {
+            //Check if hallways have at least two connections.
             int flags = 0;
             for(int x=1; x<room.size.x-1; x++) {
                 if (data(room.position.x+x, room.position.y-1) > Vacuum) flags |= 0x01;
@@ -86,12 +86,34 @@ Mapgen::Mapgen()
                 if (data(room.position.x-1, room.position.y+y) > Vacuum) flags |= 0x04;
                 if (data(room.position.x+room.size.x, room.position.y+y) > Vacuum) flags |= 0x08;
             }
-            if (flags == 0x01 || flags == 0x02 || flags == 0x04 || flags == 0x08)
-            {
-                //for(int y=0; y<room.size.y; y++)
-                //    for(int x=0; x<room.size.x; x++)
-                //        data(room.position + Vector2i(x, y)) = Unset;
-                continue;
+            if (flags == 0x01 || flags == 0x02 || flags == 0x04 || flags == 0x08) {
+                //Single connected hallway, check if extending it would connect it.
+                auto dir = Vector2i{1, 0};
+                auto pos = room.position;
+                if (flags == 0x01) { dir = Vector2i{ 0, 1}; pos += Vector2i{room.size.x / 2, room.size.y}; }
+                if (flags == 0x02) { dir = Vector2i{ 0,-1}; pos += Vector2i{room.size.x / 2, -1}; }
+                if (flags == 0x04) { dir = Vector2i{ 1, 0}; pos += Vector2i{room.size.x, room.size.y / 2}; }
+                if (flags == 0x08) { dir = Vector2i{-1, 0}; pos += Vector2i{-1, room.size.y / 2}; }
+
+                int extend = 0;
+                for(int n=0; n<5; n++)
+                    if (data(pos + dir * (n + 1)) > Vacuum) { extend = n + 1; break; }
+
+                if (extend)
+                {
+                    if (flags == 0x01) { room.size.y += extend; }
+                    if (flags == 0x02) { room.position.y -= extend; room.size.y += extend; }
+                    if (flags == 0x04) { room.size.x += extend; }
+                    if (flags == 0x08) { room.position.x -= extend; room.size.x += extend; }
+                    for(int y=0; y<room.size.y; y++)
+                        for(int x=0; x<room.size.x; x++)
+                            data(room.position + Vector2i(x, y)) = Floor;
+                } else {
+                    for(int y=0; y<room.size.y; y++)
+                        for(int x=0; x<room.size.x; x++)
+                            data(room.position + Vector2i(x, y)) = Unset;
+                    continue;
+                }
             }
         }
         for(int x=room.position.x; x<room.position.x+room.size.x; x++) {
