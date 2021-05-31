@@ -12,7 +12,7 @@ void runVisionSystem()
         //cell.light_level = Color{0.3,0.3,0.3};
     }
     for(auto&& [e, light, position] : ecs.query<Light, Position>()) {
-        map.visitFieldOfView(position, light.distance, [&light, &position](Vector2i p) {
+        map.visitFieldOfView(position, light.distance, [&light=light, &position=position](Vector2i p) {
             if (map.visionBlocked(p) && p != position) return;
             auto dist = (Vector2f(p) - Vector2f(position)).length();
             auto f = std::min(1.0f, (light.distance - dist) / (light.distance * 0.5f));
@@ -24,7 +24,7 @@ void runVisionSystem()
         });
     }
     for(auto&& [e, player, position] : ecs.query<Player, Position>()) {
-        map.visitFieldOfView(position, 100, [&position](Vector2i p) {
+        map.visitFieldOfView(position, 100, [&position=position](Vector2i p) {
             map(p).visible = true;
             if (map.visionBlocked(p))
             {
