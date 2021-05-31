@@ -59,7 +59,7 @@ public:
                 return {std::get<ecs::detail::Storage<T2>>(engine->storage).get(iter->first)};
             }
 
-            using iter_type = typename std::unordered_map<ecs::detail::IdType, T>::iterator;
+            using iter_type = typename ecs::detail::Storage<T>::StorageType::iterator;
             Iterator(iter_type _iter, Engine* _engine) : iter(_iter), engine(_engine) { checkSkip(); }
 
             void checkSkip()
@@ -78,7 +78,7 @@ public:
 
             template<typename T2, typename... ARGS2> bool checkSkipPartial()
             {
-                if (!std::get<ecs::detail::Storage<T>>(engine->storage).has(iter->first))
+                if (!std::get<ecs::detail::Storage<T2>>(engine->storage).has(iter->first))
                     return true;
                 if constexpr (sizeof...(ARGS2) > 0)
                     return checkSkipPartial<ARGS2...>();
