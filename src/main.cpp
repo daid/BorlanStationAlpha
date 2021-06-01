@@ -25,19 +25,23 @@ int main(int argc, char** argv)
 {
     Mapgen();
 
-    auto e = engine.create();
-    e.set(Position{{12, 4}}).set(Visual{'@', HsvColor(0, 0, 75), 10}).set(Player{});
-    e.set(Light{15, HsvColor(0, 0, 50)});
+    auto player = engine.create();
+    player.set(Position{{12, 4}}).set(Visual{'@', HsvColor(0, 0, 75), 10}).set(Player{});
+    player.set(Light{15, HsvColor(0, 0, 70)});
 
     Frontend frontend;
 
     while(1) {
         runVisionSystem();
 
+        Vector2i camera_position = player.get<Position>();
+
         auto size = frontend.beginDrawing();
-        for(int y=0; y<std::min(size.y, map.size().y); y++) {
-            for(int x=0; x<std::min(size.x, map.size().x); x++) {
-                Cell& cell = map(x, y);
+        camera_position -= size / 2;
+
+        for(int y=std::max(0, -camera_position.y); y<std::min(size.y, map.size().y - camera_position.y); y++) {
+            for(int x=std::max(0, -camera_position.x); x<std::min(size.x, map.size().x - camera_position.x); x++) {
+                Cell& cell = map(camera_position + Vector2i(x, y));
                 if (cell.visible && (cell.light_level.r > 0.1 || cell.light_level.g > 0.1 || cell.light_level.b > 0.1)) {
                     frontend.setbg(x, y, cell.light_level * 0.3f);
                     cell.last_seen_as = ' ';
@@ -71,10 +75,10 @@ int main(int argc, char** argv)
         switch(input)
         {
         case INPUT_QUIT: return 0;
-        case INPUT_RIGHT: actionMove(e, Vector2i{1, 0}); break;
-        case INPUT_LEFT: actionMove(e, Vector2i{-1, 0}); break;
-        case INPUT_DOWN: actionMove(e, Vector2i{0, 1}); break;
-        case INPUT_UP: actionMove(e, Vector2i{0, -1}); break;
+        case INPUT_RIGHT: actionMove(player, Vector2i{1, 0}); break;
+        case INPUT_LEFT: actionMove(player, Vector2i{-1, 0}); break;
+        case INPUT_DOWN: actionMove(player, Vector2i{0, 1}); break;
+        case INPUT_UP: actionMove(player, Vector2i{0, -1}); break;
         }
     }
     

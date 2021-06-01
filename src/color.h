@@ -81,4 +81,6 @@ public:
     Color& operator+=(const Color& other) { r = std::clamp(r + other.r, 0.0f, 1.0f); g = std::clamp(g + other.g, 0.0f, 1.0f); b = std::clamp(b + other.b, 0.0f, 1.0f); return *this; }
     Color& operator*=(const Color& other) { r = std::clamp(r * other.r, 0.0f, 1.0f); g = std::clamp(g * other.g, 0.0f, 1.0f); b = std::clamp(b * other.b, 0.0f, 1.0f); return *this; }
     Color& operator*=(float f) { r = std::clamp(r * f, 0.0f, 1.0f); g = std::clamp(g * f, 0.0f, 1.0f); b = std::clamp(b * f, 0.0f, 1.0f); return *this; }
+
+    Color max(const Color& other) const { return Color(std::max(r, other.r), std::max(g, other.g), std::max(b, other.b)); }
 };

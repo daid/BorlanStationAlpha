@@ -16,11 +16,8 @@ void runVisionSystem()
             if (map.visionBlocked(p) && p != position) return;
             auto dist = (Vector2f(p) - Vector2f(position)).length();
             auto f = std::min(1.0f, (light.distance - dist) / (light.distance * 0.5f));
-            //if (std::abs(p.x - position.x) == std::abs(p.y - position.y) && position != p) f *= 0.5f;
-            //map(p).light_level += light.color * f;
-            map(p).light_level.r = std::max(map(p).light_level.r, light.color.r * f);
-            map(p).light_level.g = std::max(map(p).light_level.g, light.color.g * f);
-            map(p).light_level.b = std::max(map(p).light_level.b, light.color.b * f);
+
+            map(p).light_level = map(p).light_level.max(light.color * f);
         });
     }
     for(auto&& [e, position] : engine.query<Player, Position>()) {
