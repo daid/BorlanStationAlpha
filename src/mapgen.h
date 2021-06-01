@@ -14,11 +14,16 @@ private:
 
     bool addRoom(Vector2i position, Vector2i size);
 
+    bool isWallForDoor(Vector2i position);
+    bool isWallForWindow(Vector2i position);
+
     enum SimpleCell {
         Unset,
         Vacuum,
         Floor,
         Wall,
+        Door,
+        Window,
     };
     Array2<SimpleCell> data;
 

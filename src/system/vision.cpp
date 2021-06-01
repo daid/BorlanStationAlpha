@@ -8,8 +8,8 @@ void runVisionSystem()
         cell.visible = false;
         cell.light_level = Color{};
 
-        //cell.visible = true;
-        //cell.light_level = Color{0.3,0.3,0.3};
+        cell.visible = true;
+        cell.light_level = Color{0.3,0.3,0.3};
     }
     for(auto&& [e, light, position] : engine.query<Light, Position>()) {
         map.visitFieldOfView(position, light.distance, [&light=light, &position=position](Vector2i p) {

@@ -41,12 +41,12 @@ int main(int argc, char** argv)
 
         for(int y=std::max(0, -camera_position.y); y<std::min(size.y, map.size().y - camera_position.y); y++) {
             for(int x=std::max(0, -camera_position.x); x<std::min(size.x, map.size().x - camera_position.x); x++) {
+
                 Cell& cell = map(camera_position + Vector2i(x, y));
                 if (cell.visible && (cell.light_level.r > 0.1 || cell.light_level.g > 0.1 || cell.light_level.b > 0.1)) {
                     frontend.setbg(x, y, cell.light_level * 0.3f);
                     cell.last_seen_as = ' ';
-                    if (cell.floor)
-                    {
+                    if (cell.floor) {
                         frontend.draw(x, y, '.', cell.light_level);
                         cell.last_seen_as = '.';
                     }

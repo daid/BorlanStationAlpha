@@ -116,10 +116,16 @@ Mapgen::Mapgen()
                     for(int y=0; y<room.size.y; y++)
                         for(int x=0; x<room.size.x; x++)
                             data(room.position + Vector2i(x, y)) = Unset;
+                    room.size = {0, 0};
                     continue;
                 }
             }
         }
+    }
+    rooms.erase(std::remove_if(rooms.begin(), rooms.end(), [](const RoomInfo& r) {return r.size.x == 0;}), rooms.end());
+
+    //Create walls for each room
+    for(auto& room : rooms) {
         for(int x=room.position.x; x<room.position.x+room.size.x; x++) {
             setWallH({x, room.position.y});
             setWallH({x, room.position.y+room.size.y-1});
@@ -129,9 +135,64 @@ Mapgen::Mapgen()
             setWallV({room.position.x, y});
             setWallV({room.position.x+room.size.x-1, y});
         }
+    }
 
+    // Find where to put doors
+    for(auto& room : rooms) {
+        std::vector<std::vector<Vector2i>> options;
+        options.emplace_back();
+        for(int x=room.position.x; x<room.position.x+room.size.x; x++) {
+            if (isWallForDoor({x, room.position.y}))
+                options.back().push_back({x, room.position.y});
+            else if (isWallForDoor({x, room.position.y - 1}))
+                options.back().push_back({x, room.position.y - 1});
+            else if (!options.back().empty())
+                options.emplace_back();
+        }
+        options.emplace_back();
+        for(int y=room.position.y; y<room.position.y+room.size.y; y++) {
+            if (isWallForDoor({room.position.x, y}))
+                options.back().push_back({room.position.x, y});
+            else if (isWallForDoor({room.position.x - 1, y}))
+                options.back().push_back({room.position.x - 1, y});
+            else if (!options.back().empty())
+                options.emplace_back();
+        }
+        for(auto& o : options)
+        {
+            bool done = o.size() == 0;
+            for(auto p : o)
+                if (data(p) == Door)
+                    done = true;
+            if (!done) {
+                data(o[irandom(0, o.size()-1)]) = Door;
+            }
+        }
+    }
+
+    for(auto& room : rooms) {
+        if (!room.hallway) continue;
+
+        for(int x=room.position.x+1; x<room.position.x+room.size.x-1; x++) {
+            if (isWallForWindow({x, room.position.y}))
+                data(x, room.position.y) = Window;
+            if (isWallForWindow({x, room.position.y+room.size.y-1}))
+                data(x, room.position.y+room.size.y-1) = Window;
+        }
+        for(int y=room.position.y+1; y<room.position.y+room.size.y-1; y++) {
+            if (isWallForWindow({room.position.x, y}))
+                data(room.position.x, y) = Window;
+            if (isWallForWindow({room.position.x+room.size.x-1, y}))
+                data(room.position.x+room.size.x-1, y) = Window;
+        }
+    }
+
+    // Add contents in a room
+    for(auto& room : rooms) {
         engine.create().set(Light{5, HsvColor(irandom(0, 360), 100, 100)}).set(Position{room.position + room.size / 2});
     }
+
+
     for(int y=0; y<data.size().y; y++) {
         for(int x=0; x<data.size().x; x++) {
             map(x, y).floor = true;
@@ -140,6 +201,8 @@ Mapgen::Mapgen()
             case Vacuum: map(x, y).floor = false; break;
             case Floor: break;
             case Wall: engine.create().set(Solid{}).set(BlockVision{}).set(Position{{x, y}}).set(Visual{'#', {0, 0, 100}}); break;
+            case Door: engine.create().set(Position{{x, y}}).set(Visual{'+', {60, 50, 100}}); break;
+            case Window: engine.create().set(Solid{}).set(Position{{x, y}}).set(Visual{'+', {0, 0, 100}}); break;
             }
         }
     }
@@ -158,6 +221,25 @@ bool Mapgen::addRoom(Vector2i position, Vector2i size)
             data(position.x + x, position.y + y) = Floor;
     rooms.push_back({position, size, false});
     return true;
+}
+
+bool Mapgen::isWallForDoor(Vector2i position)
+{
+    if (data(position) == Door) return true;
+    if (data(position) != Wall) return false;
+    if (data(position + Vector2i{0, -1}) == Floor && data(position + Vector2i{0, 1}) == Floor) return true;
+    if (data(position + Vector2i{-1, 0}) == Floor && data(position + Vector2i{1, 0}) == Floor) return true;
+    return false;
+}
+
+bool Mapgen::isWallForWindow(Vector2i position)
+{
+    if (data(position) != Wall) return false;
+    if (data(position + Vector2i{0, -1}) == Floor && data(position + Vector2i{ 0, 1}) <= Vacuum) return true;
+    if (data(position + Vector2i{0,  1}) == Floor && data(position + Vector2i{ 0,-1}) <= Vacuum) return true;
+    if (data(position + Vector2i{-1, 0}) == Floor && data(position + Vector2i{ 1, 0}) <= Vacuum) return true;
+    if (data(position + Vector2i{ 1, 0}) == Floor && data(position + Vector2i{-1, 0}) <= Vacuum) return true;
+    return false;
 }
 
 void Mapgen::setWallH(Vector2i position)

@@ -39,6 +39,16 @@ public:
         return data[x + y * _size.x];
     }
 
+    const T& operator()(Vector2i position) const
+    {
+        return data[position.x + position.y * _size.x];
+    }
+
+    const T& operator()(int x, int y) const
+    {
+        return data[x + y * _size.x];
+    }
+
     iterator begin() { return data.begin(); }
     iterator end() { return data.end(); }
     const_iterator begin() const { return data.begin(); }
