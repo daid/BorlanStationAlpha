@@ -22,6 +22,7 @@ private:
         Vacuum,
         Floor,
         Wall,
+        ThinWall,
         Door,
         Window,
     };

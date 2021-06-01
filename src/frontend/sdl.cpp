@@ -62,7 +62,7 @@ Vector2i Frontend::beginDrawing()
     while(1) {
         size.x = ((w + 7) / 8 + scale - 1) / scale;
         size.y = ((h + 7) / 8 + scale - 1) / scale;
-        if (size.x < 100 || size.y < 100)
+        if (size.x < 80 || size.y < 60)
             break;
         scale += 1;
     }

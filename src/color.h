@@ -13,8 +13,8 @@ public:
     {
     }
 
-    HsvColor(float hue, float saturation, float value)
-    : hue(std::clamp(hue, 0.0f, 360.0f)), saturation(std::clamp(saturation, 0.0f, 100.0f)), value(std::clamp(value, 0.0f, 100.0f))
+    HsvColor(float h, float s, float v)
+    : hue(std::clamp(h, 0.0f, 360.0f)), saturation(std::clamp(s, 0.0f, 100.0f)), value(std::clamp(v, 0.0f, 100.0f))
     {
     }
     

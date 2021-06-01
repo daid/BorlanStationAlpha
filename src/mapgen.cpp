@@ -173,23 +173,35 @@ Mapgen::Mapgen()
     for(auto& room : rooms) {
         if (!room.hallway) continue;
 
+        std::vector<Vector2i> options;
         for(int x=room.position.x+1; x<room.position.x+room.size.x-1; x++) {
             if (isWallForWindow({x, room.position.y}))
-                data(x, room.position.y) = Window;
+                options.emplace_back(x, room.position.y);
             if (isWallForWindow({x, room.position.y+room.size.y-1}))
-                data(x, room.position.y+room.size.y-1) = Window;
+                options.emplace_back(x, room.position.y+room.size.y-1);
         }
         for(int y=room.position.y+1; y<room.position.y+room.size.y-1; y++) {
             if (isWallForWindow({room.position.x, y}))
-                data(room.position.x, y) = Window;
+                options.emplace_back(room.position.x, y);
             if (isWallForWindow({room.position.x+room.size.x-1, y}))
-                data(room.position.x+room.size.x-1, y) = Window;
+                options.emplace_back(room.position.x+room.size.x-1, y);
+        }
+        for(auto p : options)
+            data(p) = ThinWall;
+        for(size_t n=0; n<options.size() / 5; n++)
+        {
+            auto p = options[irandom(0, options.size()-1)];
+            data(p) = Window;
+            if (data(p + Vector2i(1, 0)) == ThinWall)
+                data(p + Vector2i(1, 0)) = Window;
+            if (data(p + Vector2i(0, 1)) == ThinWall)
+                data(p + Vector2i(0, 1)) = Window;
         }
     }
 
     // Add contents in a room
     for(auto& room : rooms) {
-        engine.create().set(Light{5, HsvColor(irandom(0, 360), 100, 100)}).set(Position{room.position + room.size / 2});
+        engine.create().set(Light{5, HsvColor(irandom(0, 360), 0, 100)}).set(Position{room.position + room.size / 2});
     }
 
 
@@ -199,10 +211,16 @@ Mapgen::Mapgen()
             switch(data(x, y)) {
             case Unset: map(x, y).floor = false; break;
             case Vacuum: map(x, y).floor = false; break;
-            case Floor: break;
+            case Floor: map(x, y).oxygen = 1.0; break;
             case Wall: engine.create().set(Solid{}).set(BlockVision{}).set(Position{{x, y}}).set(Visual{'#', {0, 0, 100}}); break;
-            case Door: engine.create().set(Position{{x, y}}).set(Visual{'+', {60, 50, 100}}); break;
-            case Window: engine.create().set(Solid{}).set(Position{{x, y}}).set(Visual{'+', {0, 0, 100}}); break;
+            case ThinWall:
+                if (data(x - 1, y) <= Vacuum || data(x + 1, y) <= Vacuum)
+                    engine.create().set(Solid{}).set(BlockVision{}).set(Position{{x, y}}).set(Visual{'|', {0, 0, 100}});
+                else
+                    engine.create().set(Solid{}).set(BlockVision{}).set(Position{{x, y}}).set(Visual{'-', {0, 0, 100}});
+                break;
+            case Door: engine.create().set(Position{{x, y}}).set(Visual{'+', {30, 50, 100}}); break;
+            case Window: engine.create().set(Position{{x, y}}).set(Visual{'+', {180, 80, 100}}); break;
             }
         }
     }

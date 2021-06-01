@@ -15,8 +15,8 @@ public:
     {
     }
     
-    inline Vector2(T x, T y)
-    : x(x), y(y)
+    inline Vector2(T _x, T _y)
+    : x(_x), y(_y)
     {
     }
     

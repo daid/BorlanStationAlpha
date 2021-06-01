@@ -8,6 +8,8 @@
 #include "components.h"
 
 #include "system/vision.h"
+#include "system/oxygen.h"
+
 
 ECS engine;
 
@@ -32,6 +34,7 @@ int main(int argc, char** argv)
     Frontend frontend;
 
     while(1) {
+        runOxygenSystem();
         runVisionSystem();
 
         Vector2i camera_position = player.get<Position>();
@@ -44,9 +47,10 @@ int main(int argc, char** argv)
 
                 Cell& cell = map(camera_position + Vector2i(x, y));
                 if (cell.visible && (cell.light_level.r > 0.1 || cell.light_level.g > 0.1 || cell.light_level.b > 0.1)) {
-                    frontend.setbg(x, y, cell.light_level * 0.3f);
+                    frontend.setbg(x, y, cell.light_level * 0.1f);
                     cell.last_seen_as = ' ';
                     if (cell.floor) {
+                        frontend.setbg(x, y, cell.light_level * 0.3f);
                         frontend.draw(x, y, '.', cell.light_level);
                         cell.last_seen_as = '.';
                     }
@@ -64,8 +68,9 @@ int main(int argc, char** argv)
                         }
                     }
                 } else {
-                    frontend.draw(x, y, cell.last_seen_as, Color(0.3, 0.3, 0.3));
+                    frontend.draw(x, y, cell.last_seen_as, Color(0.2, 0.2, 0.2));
                 }
+                frontend.setbg(x, y, Color(1, 1, 1) * cell.oxygen);
             }
         }
 
