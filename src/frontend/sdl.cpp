@@ -8,7 +8,7 @@ static SDL_Texture *font_texture;
 
 Frontend::Frontend()
 {
-#ifdef __WIN32
+#ifdef _WIN32
     //On Vista or newer windows, let the OS know we are DPI aware, so we won't have odd scaling issues.
     if (void* user_dll = SDL_LoadObject("USER32.DLL")) {
         if (auto SetProcessDPIAware = reinterpret_cast<int(__stdcall *)(void)>(SDL_LoadFunction(user_dll, "SetProcessDPIAware")))
@@ -22,6 +22,11 @@ Frontend::Frontend()
     SDL_SetColorKey(font_surface, 1, 0);
     font_texture = SDL_CreateTextureFromSurface(renderer, font_surface);
     SDL_FreeSurface(font_surface);
+}
+
+Frontend::~Frontend()
+{
+    SDL_Quit();
 }
 
 uint32_t Frontend::getInput()
@@ -64,33 +69,6 @@ Vector2i Frontend::beginDrawing()
 
     buffer.resize(size);
     return size;
-}
-
-void Frontend::draw(int x, int y, char c, Color forground_color)
-{
-    if (x < 0 || y < 0) return;
-    if (x >= buffer.size().x || y >= buffer.size().y) return;
-
-    auto& e = buffer(x, y);
-    e.c = c;
-    e.forground_color = forground_color;
-}
-
-void Frontend::setbg(int x, int y, Color background_color)
-{
-    if (x < 0 || y < 0) return;
-    if (x >= buffer.size().x || y >= buffer.size().y) return;
-
-    auto& e = buffer(x, y);
-    e.background_color = background_color;
-}
-
-void Frontend::draw(int x, int y, char c, Color forground_color, Color background_color)
-{
-    if (x < 0 || y < 0) return;
-    if (x >= buffer.size().x || y >= buffer.size().y) return;
-
-    buffer(x, y) = Tile{c, forground_color, background_color};
 }
 
 void Frontend::present()

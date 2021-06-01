@@ -17,6 +17,7 @@ class Frontend
 {
 public:
     Frontend();
+    ~Frontend();
 
     uint32_t getInput();
 
