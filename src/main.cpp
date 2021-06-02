@@ -28,7 +28,7 @@ int main(int argc, char** argv)
     Mapgen();
 
     auto player = engine.create();
-    player.set(Position{{12, 4}}).set(Visual{'@', HsvColor(0, 0, 75), 10}).set(Player{});
+    player.set(Position{{12, 4}}).set(Visual{'@', HsvColor(0, 0, 100), 10}).set(Player{});
     player.set(Light{15, HsvColor(0, 0, 70)});
 
     Frontend frontend;
@@ -70,7 +70,7 @@ int main(int argc, char** argv)
                 } else {
                     frontend.draw(x, y, cell.last_seen_as, Color(0.2, 0.2, 0.2));
                 }
-                
+
                 //frontend.setbg(x, y, Color(1, 1, 1) * cell.oxygen);
             }
         }

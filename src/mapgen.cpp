@@ -27,7 +27,7 @@ Mapgen::Mapgen()
     };
     std::vector<DoorInfo> door_options;
 
-    Vector2i position{30, 30};
+    Vector2i position{irandom(10, map.size().x - 20), irandom(10, map.size().y - 20)};
     Vector2i size{irandom(5, 10), irandom(5, 10)};
     addRoom(position, size);
     door_options.push_back({position + Vector2i(size.x / 2, 0), Up, true});
@@ -46,6 +46,7 @@ Mapgen::Mapgen()
         if (door.expect_hallway && irandom(0, 100) < 40) door.expect_hallway = false;
         if (door.expect_hallway) {
             size.x = size.y = std::max(size.x, size.y);
+            if (irandom(0, 100) < 20) size *= 2;
             if (door.direction == Up || door.direction == Down) size.x = 4; else size.y = 4;
         }
         position = door.position;
@@ -90,10 +91,10 @@ Mapgen::Mapgen()
                 //Single connected hallway, check if extending it would connect it.
                 auto dir = Vector2i{1, 0};
                 auto pos = room.position;
-                if (flags == 0x01) { dir = Vector2i{ 0, 1}; pos += Vector2i{room.size.x / 2, room.size.y}; }
-                if (flags == 0x02) { dir = Vector2i{ 0,-1}; pos += Vector2i{room.size.x / 2, -1}; }
-                if (flags == 0x04) { dir = Vector2i{ 1, 0}; pos += Vector2i{room.size.x, room.size.y / 2}; }
-                if (flags == 0x08) { dir = Vector2i{-1, 0}; pos += Vector2i{-1, room.size.y / 2}; }
+                if (flags == 0x01) { dir = Vector2i{ 0, 1}; pos += Vector2i{irandom(1, room.size.x - 2), room.size.y}; }
+                if (flags == 0x02) { dir = Vector2i{ 0,-1}; pos += Vector2i{irandom(1, room.size.x - 2), -1}; }
+                if (flags == 0x04) { dir = Vector2i{ 1, 0}; pos += Vector2i{room.size.x, irandom(1, room.size.y - 2)}; }
+                if (flags == 0x08) { dir = Vector2i{-1, 0}; pos += Vector2i{-1, irandom(1, room.size.y - 2)}; }
 
                 int extend = 0;
                 for(int n=0; n<15; n++) {
@@ -201,7 +202,15 @@ Mapgen::Mapgen()
 
     // Add contents in a room
     for(auto& room : rooms) {
-        engine.create().set(Light{5, HsvColor(irandom(0, 360), 0, 100)}).set(Position{room.position + room.size / 2});
+        auto light_count = (room.size + Vector2i(7, 7)) / 8;
+        Vector2i spacing{room.size.x / light_count.x, room.size.y / light_count.y};
+        Vector2i offset = room.position + Vector2i{(room.size.x - ((light_count.x - 1) * spacing.x)) / 2, (room.size.y - ((light_count.y - 1) * spacing.y)) / 2};
+
+        for(int y=0; y<light_count.y; y++) {
+            for(int x=0; x<light_count.x; x++) {
+                engine.create().set(Light{4.0f, HsvColor(irandom(0, 360), 0, 100)}).set(Position{offset + Vector2i(spacing.x * x, spacing.y * y)});
+            }
+        }
     }
 
 
