@@ -3,7 +3,7 @@
 #include "map.h"
 
 static std::array<Vector2i, 8> DIRECTIONS = {{{-1,-1},{-1,0},{-1,1}, {0,-1},{0,1}, {1,-1},{1,0},{1,1}}};
-//static std::array<Vector2i, 4> DIRECTIONS = {{{-1,0}, {1,0},{0,-1}, {0,1}}};
+
 
 static void oxygenFlow(float factor)
 {

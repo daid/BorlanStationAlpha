@@ -1,6 +1,11 @@
 #include "frontend.h"
 
 
+Vector2i Frontend::getDrawSize()
+{
+    return buffer.size();
+}
+
 void Frontend::draw(int x, int y, char c, Color forground_color)
 {
     if (x < 0 || y < 0) return;
