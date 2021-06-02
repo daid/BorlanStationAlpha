@@ -208,9 +208,12 @@ Mapgen::Mapgen()
         Vector2i spacing{room.size.x / light_count.x, room.size.y / light_count.y};
         Vector2i offset = room.position + Vector2i{(room.size.x - ((light_count.x - 1) * spacing.x)) / 2, (room.size.y - ((light_count.y - 1) * spacing.y)) / 2};
 
+        int light_off = irandom(0, light_count.x * light_count.y - 1);
+        if (irandom(0, 100) > 25 * light_count.x * light_count.y) light_off = -1;
         for(int y=0; y<light_count.y; y++) {
             for(int x=0; x<light_count.x; x++) {
-                engine.create().set(Light{4.0f, HsvColor(irandom(0, 360), 0, 100)}).set(Position{offset + Vector2i(spacing.x * x, spacing.y * y)});
+                if (x + y * light_count.x != light_off)
+                    engine.create().set(Light{4.0f, HsvColor(irandom(0, 360), 0, 100)}).set(Position{offset + Vector2i(spacing.x * x, spacing.y * y)});
             }
         }
     }
