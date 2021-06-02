@@ -3,6 +3,7 @@
 #include "typeid.h"
 #include "entitybase.h"
 
+#include <type_traits>
 #include <unordered_set>
 #include <unordered_map>
 
@@ -16,7 +17,8 @@ template<typename T> struct HasEntityCallback<T,
     typename TypeSink<decltype(&T::onCreate)>::Type,
     typename TypeSink<decltype(&T::onDestroy)>::Type> : std::true_type{};
 
-template<typename T> class Storage {
+template<typename T>
+class Storage<T, typename std::enable_if_t<!std::is_empty_v<T>>> {
 public:
     using StorageType = std::unordered_map<IdType, T>;
     StorageType data;
@@ -46,6 +48,31 @@ public:
         {
             if constexpr (HasEntityCallback<T>::value)
                 it->second.onDestroy(EntityBase(id));
+            data.erase(it);
+        }
+    }
+};
+
+template<typename T>
+class Storage<T, typename std::enable_if_t<std::is_empty_v<T>>> {
+public:
+    using StorageType = std::unordered_set<IdType>;
+    StorageType data;
+
+    bool has(IdType id) const {
+        return data.find(id) != data.end();
+    }
+
+    void set(IdType id)
+    {
+        data.insert(id);
+    }
+
+    void remove(IdType id)
+    {
+        auto it = data.find(id);
+        if (it != data.end())
+        {
             data.erase(it);
         }
     }

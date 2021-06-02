@@ -47,16 +47,16 @@ public:
             ResultType operator*()
             {
                 if constexpr (std::is_empty_v<T>)
-                    return std::tuple_cat(std::tuple<Entity>(Entity(iter->first, engine)), get<ARGS>()...);
+                    return std::tuple_cat(std::tuple<Entity>(Entity(iterId(), engine)), get<ARGS>()...);
                 else
-                    return std::tuple_cat(std::tuple<Entity, T&>(Entity(iter->first, engine), iter->second), get<ARGS>()...);
+                    return std::tuple_cat(std::tuple<Entity, T&>(Entity(iterId(), engine), iter->second), get<ARGS>()...);
             }
 
         private:
             template<typename T2, typename = std::enable_if_t<std::is_empty_v<T2>>> std::tuple<> get() { return {}; }
             template<typename T2, typename = std::enable_if_t<!std::is_empty_v<T2>>> std::tuple<T2&> get()
             {
-                return {std::get<ecs::detail::Storage<T2>>(engine->storage).get(iter->first)};
+                return {std::get<ecs::detail::Storage<T2>>(engine->storage).get(iterId())};
             }
 
             using iter_type = typename ecs::detail::Storage<T>::StorageType::iterator;
@@ -78,11 +78,19 @@ public:
 
             template<typename T2, typename... ARGS2> bool checkSkipPartial()
             {
-                if (!std::get<ecs::detail::Storage<T2>>(engine->storage).has(iter->first))
+                if (!std::get<ecs::detail::Storage<T2>>(engine->storage).has(iterId()))
                     return true;
                 if constexpr (sizeof...(ARGS2) > 0)
                     return checkSkipPartial<ARGS2...>();
                 return false;
+            }
+
+            ecs::detail::IdType iterId() const
+            {
+                if constexpr(std::is_empty_v<T>)
+                    return *iter;
+                else
+                    return iter->first;
             }
 
             iter_type iter;
@@ -99,10 +107,21 @@ public:
         Engine* engine;
     };
 
-    template<typename T> bool has(const ecs::EntityBase& e) const {  return std::get<ecs::detail::Storage<T>>(storage).has(e.id); }
-    template<typename T> T& get(const ecs::EntityBase& e) { return std::get<ecs::detail::Storage<T>>(storage).get(e.id); }
-    template<typename T> void set(const ecs::EntityBase& e, const T& value) { std::get<ecs::detail::Storage<T>>(storage).set(e.id, value); }
-    template<typename T> void remove(const ecs::EntityBase& e) { std::get<ecs::detail::Storage<T>>(storage).remove(e.id); }
+    template<typename T>
+    bool has(const ecs::EntityBase& e) const {  return std::get<ecs::detail::Storage<T>>(storage).has(e.id); }
+    
+    template<typename T, typename = std::enable_if_t<!std::is_empty_v<T>>>
+    T& get(const ecs::EntityBase& e) { return std::get<ecs::detail::Storage<T>>(storage).get(e.id); }
+
+    template<typename T, typename = std::enable_if_t<!std::is_empty_v<T>>>
+    void set(const ecs::EntityBase& e, const T& value) { std::get<ecs::detail::Storage<T>>(storage).set(e.id, value); }
+
+    template<typename T, typename = std::enable_if_t<std::is_empty_v<T>>>
+    void set(const ecs::EntityBase& e) { std::get<ecs::detail::Storage<T>>(storage).set(e.id); }
+    
+    template<typename T>
+    void remove(const ecs::EntityBase& e) { std::get<ecs::detail::Storage<T>>(storage).remove(e.id); }
+    
     void destroy(ecs::EntityBase& e)
     {
         (std::get<ecs::detail::Storage<CL>>(storage).remove(e.id), ...);

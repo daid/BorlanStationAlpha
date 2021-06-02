@@ -28,7 +28,7 @@ int main(int argc, char** argv)
     Mapgen();
 
     auto player = engine.create();
-    player.set(Position{{12, 4}}).set(Visual{'@', HsvColor(0, 0, 100), 10}).set(Player{});
+    player.set(Position{{12, 4}}).set(Visual{'@', HsvColor(0, 0, 100), 10}).set<Player>().set<Solid>();
     player.set(Light{15, HsvColor(0, 0, 70)});
 
     Frontend frontend;

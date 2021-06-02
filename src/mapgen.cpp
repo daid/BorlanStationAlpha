@@ -200,6 +200,8 @@ Mapgen::Mapgen()
         }
     }
 
+
+
     // Add contents in a room
     for(auto& room : rooms) {
         auto light_count = (room.size + Vector2i(7, 7)) / 8;
@@ -221,15 +223,15 @@ Mapgen::Mapgen()
             case Unset: map(x, y).floor = false; break;
             case Vacuum: map(x, y).floor = false; break;
             case Floor: map(x, y).oxygen = 1.0; break;
-            case Wall: engine.create().set(Solid{}).set(BlockVision{}).set(Position{{x, y}}).set(Visual{'#', {0, 0, 100}}); break;
+            case Wall: engine.create().set<Solid>().set<BlockVision>().set(Position{{x, y}}).set(Visual{'#', {0, 0, 100}}); break;
             case ThinWall:
                 if (data(x - 1, y) <= Vacuum || data(x + 1, y) <= Vacuum)
-                    engine.create().set(Solid{}).set(BlockVision{}).set(Position{{x, y}}).set(Visual{'|', {0, 0, 100}});
+                    engine.create().set<Solid>().set<BlockVision>().set(Position{{x, y}}).set(Visual{'|', {0, 0, 100}});
                 else
-                    engine.create().set(Solid{}).set(BlockVision{}).set(Position{{x, y}}).set(Visual{'-', {0, 0, 100}});
+                    engine.create().set<Solid>().set<BlockVision>().set(Position{{x, y}}).set(Visual{'-', {0, 0, 100}});
                 break;
             case Door: engine.create().set(Position{{x, y}}).set(Visual{'+', {30, 50, 100}}); break;
-            case Window: engine.create().set(Solid{}).set(Position{{x, y}}).set(Visual{'+', {180, 80, 100}}); break;
+            case Window: engine.create().set<Solid>().set(Position{{x, y}}).set(Visual{'+', {180, 80, 100}}); break;
             }
         }
     }

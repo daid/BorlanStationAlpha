@@ -3,7 +3,9 @@
 #include "typeid.h"
 
 
-namespace ecs::detail { template<typename T> class Storage; }
+namespace ecs::detail {
+    template<typename T, typename Enable = void> class Storage;
+}
 namespace ecs {
 template<typename...> class Engine;
 
