@@ -12,7 +12,7 @@ public:
     template<typename T> Entity& set(const T& value) { engine->set(*this, value); return *this; }
     template<typename T> Entity& remove() { engine->template remove<T>(*this); return *this; }
 
-    void destroy() { engine->destroy(id); }
+    void destroy() { engine->destroy(*this); }
 private:
     Entity(detail::IdType _id, Engine<CL...>* _engine) : EntityBase(_id), engine(_engine) {}
 

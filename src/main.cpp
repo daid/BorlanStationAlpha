@@ -70,7 +70,8 @@ int main(int argc, char** argv)
                 } else {
                     frontend.draw(x, y, cell.last_seen_as, Color(0.2, 0.2, 0.2));
                 }
-                frontend.setbg(x, y, Color(1, 1, 1) * cell.oxygen);
+                
+                //frontend.setbg(x, y, Color(1, 1, 1) * cell.oxygen);
             }
         }
 
@@ -85,6 +86,8 @@ int main(int argc, char** argv)
         case INPUT_DOWN: actionMove(player, Vector2i{0, 1}); break;
         case INPUT_UP: actionMove(player, Vector2i{0, -1}); break;
         }
+
+        //for(auto e : map(player.get<Position>()).entities) { if (e.has<Solid>()) e.destroy(); }
     }
     
     return 0;

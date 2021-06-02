@@ -2,6 +2,9 @@
 #include "components.h"
 #include "map.h"
 
+static std::array<Vector2i, 8> DIRECTIONS = {{{-1,-1},{-1,0},{-1,1}, {0,-1},{0,1}, {1,-1},{1,0},{1,1}}};
+//static std::array<Vector2i, 4> DIRECTIONS = {{{-1,0}, {1,0},{0,-1}, {0,1}}};
+
 static void oxygenFlow(float factor)
 {
     Array2<float> delta;
@@ -9,26 +12,27 @@ static void oxygenFlow(float factor)
 
     for(int y=1; y<map.size().y-1; y++) {
         for(int x=1; x<map.size().x-1; x++) {
+            Vector2i p{x, y};
             float diff_total{0};
             int flags{0};
-            if (!map.hasSolidEntity({x + 1, y})) flags |= 1;
-            if (!map.hasSolidEntity({x - 1, y})) flags |= 2;
-            if (!map.hasSolidEntity({x, y + 1})) flags |= 4;
-            if (!map.hasSolidEntity({x, y - 1})) flags |= 8;
-            if (flags & 1) diff_total += std::max(0.0f, map(x, y).oxygen - map(x + 1, y).oxygen);
-            if (flags & 2) diff_total += std::max(0.0f, map(x, y).oxygen - map(x - 1, y).oxygen);
-            if (flags & 4) diff_total += std::max(0.0f, map(x, y).oxygen - map(x, y + 1).oxygen);
-            if (flags & 8) diff_total += std::max(0.0f, map(x, y).oxygen - map(x, y - 1).oxygen);
+            for(size_t n=0; n<DIRECTIONS.size(); n++) {
+                if (map(p).oxygen > map(p + DIRECTIONS[n]).oxygen) {
+                    if (!map.hasSolidEntity(p + DIRECTIONS[n])) {
+                        flags |= (1 << n);
+                        diff_total += map(p).oxygen - map(p + DIRECTIONS[n]).oxygen;
+                    }
+                }
+            }
 
             if (diff_total > 0.0f) {
-                float diff_transfer = std::min(map(x, y).oxygen, diff_total) * factor;
+                float diff_transfer = std::min(map(p).oxygen, diff_total) * factor;
                 float f = diff_transfer / diff_total;
-
-                delta(x, y) -= diff_transfer;
-                if (flags & 1) delta(x + 1, y) += std::max(0.0f, map(x, y).oxygen - map(x + 1, y).oxygen) * f;
-                if (flags & 2) delta(x - 1, y) += std::max(0.0f, map(x, y).oxygen - map(x - 1, y).oxygen) * f;
-                if (flags & 4) delta(x, y + 1) += std::max(0.0f, map(x, y).oxygen - map(x, y + 1).oxygen) * f;
-                if (flags & 8) delta(x, y - 1) += std::max(0.0f, map(x, y).oxygen - map(x, y - 1).oxygen) * f;
+                delta(p) -= diff_transfer;
+                for(size_t n=0; n<DIRECTIONS.size(); n++) {
+                    if (flags & (1 << n)) {
+                        delta(p + DIRECTIONS[n]) += (map(p).oxygen - map(p + DIRECTIONS[n]).oxygen) * f;
+                    }
+                }
             }
         }
     }
@@ -45,9 +49,11 @@ static void oxygenFlow(float factor)
 
 void runOxygenSystem()
 {
+    //First, agressively transfer oxygen between cells, but this leaves it in a very wave form pattern
     oxygenFlow(0.9);
-    oxygenFlow(0.9);
+    //So smooth out by transfering less in the next iterations.
     oxygenFlow(0.25);
     oxygenFlow(0.25);
-    oxygenFlow(0.25);
+    oxygenFlow(0.05);
+    oxygenFlow(0.05);
 }
