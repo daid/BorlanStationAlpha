@@ -30,10 +30,10 @@ Mapgen::Mapgen()
     Vector2i position{irandom(10, map.size().x - 20), irandom(10, map.size().y - 20)};
     Vector2i size{irandom(5, 10), irandom(5, 10)};
     add_room(position, size);
-    door_options.push_back({position + Vector2i(size.x / 2, 0), Up, true});
-    door_options.push_back({position + Vector2i(size.x / 2, size.y - 1), Down, true});
-    door_options.push_back({position + Vector2i(0, size.x / 2), Left, true});
-    door_options.push_back({position + Vector2i(size.x - 1, size.y / 2), Right, true});
+    door_options.push_back({position + Vector2i{size.x / 2, 0}, Up, true});
+    door_options.push_back({position + Vector2i{size.x / 2, size.y - 1}, Down, true});
+    door_options.push_back({position + Vector2i{0, size.x / 2}, Left, true});
+    door_options.push_back({position + Vector2i{size.x - 1, size.y / 2}, Right, true});
 
     while(!door_options.empty()) {
         int idx = irandom(0, int(door_options.size() - 1));
@@ -60,17 +60,17 @@ Mapgen::Mapgen()
             if (door.expect_hallway) {
                 rooms.back().hallway = true;
                 if (door.direction == Up || door.direction == Down) {
-                    door_options.push_back({position + Vector2i(irandom(1, size.x - 2), 0), Up, false});
-                    door_options.push_back({position + Vector2i(irandom(1, size.x - 2), size.y - 1), Down, false});
+                    door_options.push_back({position + Vector2i{irandom(1, size.x - 2), 0}, Up, false});
+                    door_options.push_back({position + Vector2i{irandom(1, size.x - 2), size.y - 1}, Down, false});
                 } else {
-                    door_options.push_back({position + Vector2i(0, irandom(1, size.y - 2)), Left, false});
-                    door_options.push_back({position + Vector2i(size.x - 1, irandom(1, size.y - 2)), Right, false});
+                    door_options.push_back({position + Vector2i{0, irandom(1, size.y - 2)}, Left, false});
+                    door_options.push_back({position + Vector2i{size.x - 1, irandom(1, size.y - 2)}, Right, false});
                 }
             } else {
-                door_options.push_back({position + Vector2i(irandom(1, size.x - 2), 0), Up, true});
-                door_options.push_back({position + Vector2i(irandom(1, size.x - 2), size.y - 1), Down, true});
-                door_options.push_back({position + Vector2i(0, irandom(1, size.y - 2)), Left, true});
-                door_options.push_back({position + Vector2i(size.x - 1, irandom(1, size.y - 2)), Right, true});
+                door_options.push_back({position + Vector2i{irandom(1, size.x - 2), 0}, Up, true});
+                door_options.push_back({position + Vector2i{irandom(1, size.x - 2), size.y - 1}, Down, true});
+                door_options.push_back({position + Vector2i{0, irandom(1, size.y - 2)}, Left, true});
+                door_options.push_back({position + Vector2i{size.x - 1, irandom(1, size.y - 2)}, Right, true});
             }
         }
     }
@@ -112,11 +112,11 @@ Mapgen::Mapgen()
                     if (flags == 0x08) { room.position.x -= extend; room.size.x += extend; }
                     for(int y=0; y<room.size.y; y++)
                         for(int x=0; x<room.size.x; x++)
-                            data(room.position + Vector2i(x, y)) = Floor;
+                            data(room.position + Vector2i{x, y}) = Floor;
                 } else {
                     for(int y=0; y<room.size.y; y++)
                         for(int x=0; x<room.size.x; x++)
-                            data(room.position + Vector2i(x, y)) = Unset;
+                            data(room.position + Vector2i{x, y}) = Unset;
                     room.size = {0, 0};
                     continue;
                 }
@@ -177,15 +177,15 @@ Mapgen::Mapgen()
         std::vector<Vector2i> options;
         for(int x=room.position.x+1; x<room.position.x+room.size.x-1; x++) {
             if (is_wall_for_window({x, room.position.y}))
-                options.emplace_back(x, room.position.y);
+                options.push_back({x, room.position.y});
             if (is_wall_for_window({x, room.position.y+room.size.y-1}))
-                options.emplace_back(x, room.position.y+room.size.y-1);
+                options.push_back({x, room.position.y+room.size.y-1});
         }
         for(int y=room.position.y+1; y<room.position.y+room.size.y-1; y++) {
             if (is_wall_for_window({room.position.x, y}))
-                options.emplace_back(room.position.x, y);
+                options.push_back({room.position.x, y});
             if (is_wall_for_window({room.position.x+room.size.x-1, y}))
-                options.emplace_back(room.position.x+room.size.x-1, y);
+                options.push_back({room.position.x+room.size.x-1, y});
         }
         for(auto p : options)
             data(p) = ThinWall;
@@ -193,10 +193,10 @@ Mapgen::Mapgen()
         {
             auto p = options[irandom(0, options.size()-1)];
             data(p) = Window;
-            if (data(p + Vector2i(1, 0)) == ThinWall)
-                data(p + Vector2i(1, 0)) = Window;
-            if (data(p + Vector2i(0, 1)) == ThinWall)
-                data(p + Vector2i(0, 1)) = Window;
+            if (data(p + Vector2i{1, 0}) == ThinWall)
+                data(p + Vector2i{1, 0}) = Window;
+            if (data(p + Vector2i{0, 1}) == ThinWall)
+                data(p + Vector2i{0, 1}) = Window;
         }
     }
 
@@ -204,7 +204,7 @@ Mapgen::Mapgen()
 
     // Add contents in a room
     for(auto& room : rooms) {
-        auto light_count = (room.size + Vector2i(7, 7)) / 8;
+        auto light_count = (room.size + Vector2i{7, 7}) / 8;
         Vector2i spacing{room.size.x / light_count.x, room.size.y / light_count.y};
         Vector2i offset = room.position + Vector2i{(room.size.x - ((light_count.x - 1) * spacing.x)) / 2, (room.size.y - ((light_count.y - 1) * spacing.y)) / 2};
 
@@ -213,7 +213,7 @@ Mapgen::Mapgen()
         for(int y=0; y<light_count.y; y++) {
             for(int x=0; x<light_count.x; x++) {
                 if (x + y * light_count.x != light_off)
-                    engine.create().set(Light{4.0f, HsvColor(irandom(0, 360), 0, 100)}).set(Position{offset + Vector2i(spacing.x * x, spacing.y * y)});
+                    engine.create().set(Light{4.0f, HsvColor(irandom(0, 360), 0, 100)}).set(Position{offset + Vector2i{spacing.x * x, spacing.y * y}});
             }
         }
     }
@@ -276,14 +276,14 @@ bool Mapgen::is_wall_for_window(Vector2i position)
 
 void Mapgen::set_wall_h(Vector2i position)
 {
-    if (data(position+Vector2i(-1,-1)) == Wall && data(position+Vector2i(0,-1)) == Wall && data(position+Vector2i(1,-1)) == Wall) return;
-    if (data(position+Vector2i(-1, 1)) == Wall && data(position+Vector2i(0, 1)) == Wall && data(position+Vector2i(1, 1)) == Wall) return;
+    if (data(position+Vector2i{-1,-1}) == Wall && data(position+Vector2i{0,-1}) == Wall && data(position+Vector2i{1,-1}) == Wall) return;
+    if (data(position+Vector2i{-1, 1}) == Wall && data(position+Vector2i{0, 1}) == Wall && data(position+Vector2i{1, 1}) == Wall) return;
     data(position) = Wall;
 }
 
 void Mapgen::set_wall_v(Vector2i position)
 {
-    if (data(position+Vector2i(-1, 1)) == Wall && data(position+Vector2i(-1, 0)) == Wall && data(position+Vector2i(-1,-1)) == Wall) return;
-    if (data(position+Vector2i( 1, 1)) == Wall && data(position+Vector2i( 1, 0)) == Wall && data(position+Vector2i( 1,-1)) == Wall) return;
+    if (data(position+Vector2i{-1, 1}) == Wall && data(position+Vector2i{-1, 0}) == Wall && data(position+Vector2i{-1,-1}) == Wall) return;
+    if (data(position+Vector2i{ 1, 1}) == Wall && data(position+Vector2i{ 1, 0}) == Wall && data(position+Vector2i{ 1,-1}) == Wall) return;
     data(position) = Wall;
 }

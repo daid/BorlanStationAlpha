@@ -8,22 +8,7 @@
 template<typename T> class Vector2
 {
 public:
-    T x, y;
-    
-    inline Vector2()
-    : x(0), y(0)
-    {
-    }
-    
-    inline Vector2(T _x, T _y)
-    : x(_x), y(_y)
-    {
-    }
-    
-    template <typename T2> explicit inline Vector2(const Vector2<T2>& v)
-    : x(v.x), y(v.y)
-    {
-    }
+    T x{}, y{};
 
     inline T length()
     {
@@ -49,11 +34,11 @@ public:
     }
 };
 
-template <typename T> static inline Vector2<T> operator -(const Vector2<T>& a) { return Vector2<T>(-a.x, -a.y); }
-template <typename T> static inline Vector2<T> operator +(const Vector2<T>& a, const Vector2<T>& b) { return Vector2<T>(a.x+b.x, a.y+b.y); }
-template <typename T> static inline Vector2<T> operator -(const Vector2<T>& a, const Vector2<T>& b) { return Vector2<T>(a.x-b.x, a.y-b.y); }
-template <typename T> static inline Vector2<T> operator *(const Vector2<T>& a, const T b) { return Vector2<T>(a.x*b, a.y*b); }
-template <typename T> static inline Vector2<T> operator /(const Vector2<T>& a, const T b) { return Vector2<T>(a.x/b, a.y/b); }
+template <typename T> static inline Vector2<T> operator -(const Vector2<T>& a) { return Vector2<T>{-a.x, -a.y}; }
+template <typename T> static inline Vector2<T> operator +(const Vector2<T>& a, const Vector2<T>& b) { return Vector2<T>{a.x+b.x, a.y+b.y}; }
+template <typename T> static inline Vector2<T> operator -(const Vector2<T>& a, const Vector2<T>& b) { return Vector2<T>{a.x-b.x, a.y-b.y}; }
+template <typename T> static inline Vector2<T> operator *(const Vector2<T>& a, const T b) { return Vector2<T>{a.x*b, a.y*b}; }
+template <typename T> static inline Vector2<T> operator /(const Vector2<T>& a, const T b) { return Vector2<T>{a.x/b, a.y/b}; }
 template <typename T> static inline void operator +=(Vector2<T>& a, const Vector2<T>& b) { a.x += b.x; a.y += b.y; }
 template <typename T> static inline void operator -=(Vector2<T>& a, const Vector2<T>& b) { a.x -= b.x; a.y -= b.y; }
 template <typename T> static inline void operator *=(Vector2<T>& a, const T b) { a.x *= b; a.y *= b; }

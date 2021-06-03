@@ -2,6 +2,7 @@
 #include "components.h"
 #include "map.h"
 
+
 void run_vision_system()
 {
     for(Cell& cell : map) {
@@ -14,7 +15,7 @@ void run_vision_system()
     for(auto&& [e, light, position] : engine.query<Light, Position>()) {
         map.visit_field_of_view(position, light.distance, [&light=light, &position=position](Vector2i p) {
             if (map.vision_blocked(p) && p != position) return;
-            auto dist = (Vector2f(p) - Vector2f(position)).length();
+            auto dist = (Vector2f{p.x, p.y} - Vector2f{position.x, position.y}).length();
             auto f = std::min(1.0f, (light.distance - dist) / (light.distance * 0.5f));
 
             map(p).light_level = map(p).light_level.max(light.color * f);
