@@ -24,7 +24,7 @@ static void oxygen_flow(float factor)
                 }
             }
 
-            if (diff_total > 0.0f) {
+            if (diff_total > 0.01f) {
                 float diff_transfer = std::min(map(p).oxygen, diff_total) * factor;
                 float f = diff_transfer / diff_total;
                 delta(p) -= diff_transfer;
@@ -51,7 +51,10 @@ void run_oxygen_system()
 {
     //First, agressively transfer oxygen between cells, but this leaves it in a very wave form pattern
     oxygen_flow(0.9);
+    oxygen_flow(0.9);
     //So smooth out by transfering less in the next iterations.
+    oxygen_flow(0.25);
+    oxygen_flow(0.25);
     oxygen_flow(0.25);
     oxygen_flow(0.25);
     oxygen_flow(0.05);

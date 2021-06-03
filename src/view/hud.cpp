@@ -1,5 +1,8 @@
 #include "hud.h"
+#include "../map.h"
 #include "messagelog.h"
+#include "components.h"
+#include "format.h"
 #include <array>
 #include <iostream>
 
@@ -19,6 +22,7 @@ void HudView::draw(Frontend& frontend)
         frontend.draw(size.x - 15, y, '|', fg, bg);
 
     clear(frontend, {size.x-14, 0}, {14, size.y});
+    draw_stats(frontend, {size.x-14, 0}, {14, size.y});
     draw_log(frontend, {0, size.y - log_line_count}, {size.x - 15, log_line_count});
 }
 
@@ -28,6 +32,14 @@ void HudView::clear(Frontend& frontend, Vector2i position, Vector2i size)
         for(int x=0; x<size.x; x++) {
             frontend.draw(position.x + x, position.y + y, ' ', fg, bg);
         }
+    }
+}
+
+void HudView::draw_stats(Frontend& frontend, Vector2i p, Vector2i size)
+{
+    for(auto&& [e, position, health] : engine.query<Player, Position, Health>()) {
+        frontend.draw(p.x, p.y++, format("HP: @/@", health.current, health.max), fg);
+        frontend.draw(p.x, p.y++, format("O2: @", map(position).oxygen), fg);
     }
 }
 

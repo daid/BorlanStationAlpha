@@ -233,7 +233,7 @@ Mapgen::Mapgen()
                 else
                     engine.create().set<Solid>().set<BlockVision>().set(Position{{x, y}}).set(Visual{'-', {0, 0, 100}});
                 break;
-            case Door: engine.create().set(Position{{x, y}}).set(Visual{'+', {30, 50, 100}}); break;
+            case Door: engine.create().set(Position{{x, y}}).set(Visual{'+', {30, 50, 100}}).set<Solid>(); break;
             case Window: engine.create().set<Solid>().set(Position{{x, y}}).set(Visual{'+', {180, 80, 100}}); break;
             }
         }

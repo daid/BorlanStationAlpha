@@ -33,6 +33,7 @@ int main(int argc, char** argv)
 
     auto player = engine.create();
     player.set(Position{{12, 4}}).set(Visual{'@', HsvColor(0, 0, 100), 10}).set<Player>();
+    player.set(Health{20, 40});
     //player.set<Solid>();
     player.set(Light{10, HsvColor(0, 0, 50)});
 
@@ -66,7 +67,7 @@ int main(int argc, char** argv)
         case INPUT_UP: action_move(player, Vector2i{0, -1}); break;
         }
 
-        //for(auto e : map(player.get<Position>()).entities) { if (e.has<Solid>()) e.destroy(); }
+        //for(auto e : map(player.get<Position>()).entities) { if (e.has<Solid>() && !e.has<Player>()) e.destroy(); }
     }
     
     return 0;
