@@ -6,6 +6,7 @@
 #include "ecs.h"
 #include "mapgen.h"
 #include "components.h"
+#include "messagelog.h"
 
 #include "system/vision.h"
 #include "system/oxygen.h"
@@ -39,9 +40,16 @@ int main(int argc, char** argv)
     MapView map_view;
     HudView hud_view;
 
+    for(int n=0; n<20; n++)
+        mlog.add("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris at mattis nunc, eget pellentesque turpis. Interdum et malesuada fames ac ante ipsum primis in faucibus. Curabitur elementum ipsum vel tortor semper bibendum. Ut molestie mattis lacus, consectetur scelerisque elit eleifend vitae. Maecenas efficitur fringilla lectus, a eleifend justo cursus vel. Maecenas eget arcu hendrerit, sagittis erat nec, sagittis dui. Cras risus erat, porttitor vel rutrum sed, lacinia at lacus.");
+    mlog.add("Test12345");
+
     while(1) {
         runOxygenSystem();
         runVisionSystem();
+
+        while(mlog.has_new_messages())
+            mlog.confirm_new_message();
 
         frontend.beginDrawing();
         map_view.draw(frontend);
