@@ -46,15 +46,11 @@ void HudView::draw_log(Frontend& frontend, Vector2i position, Vector2i size)
             msg = msg.substr(split + 1);
         }
         for(auto line : lines) {
-            for(size_t x=0; x < line.size(); x++) {
-                frontend.draw(position.x + x, position.y + y, line[x], fg, bg);
-            }
+            frontend.draw(position.x, position.y + y, line, fg);
             y--;
             if (y < 0) return;
         }
 
-        for(size_t x=0; x < msg.size(); x++) {
-            frontend.draw(position.x + x, position.y + y, msg[x], fg, bg);
-        }
+        frontend.draw(position.x, position.y + y, msg, fg);
     }
 }

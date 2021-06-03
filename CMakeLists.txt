@@ -18,7 +18,7 @@ file(GLOB_RECURSE SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp" "${CMAKE_CURRE
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
-target_compile_options(${PROJECT_NAME} PUBLIC -Wall -Wextra -Wshadow -Wno-unused-parameter)
+target_compile_options(${PROJECT_NAME} PUBLIC -Wall -Wextra -Wshadow -Wno-unused-parameter -Wno-narrowing)
 
 if (${CONSOLE})
     target_compile_definitions(${PROJECT_NAME} PUBLIC -DCONSOLE_FRONTEND=1)

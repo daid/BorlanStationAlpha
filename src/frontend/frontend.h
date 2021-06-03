@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <cstdint>
+#include <string_view>
 
 #include "array2.h"
 #include "color.h"
@@ -25,6 +26,7 @@ public:
     Vector2i get_draw_size();
     void draw(int x, int y, char c, Color forground_color);
     void setbg(int x, int y, Color background_color);
+    void draw(int x, int y, std::string_view str, Color forground_color);
     void draw(int x, int y, char c, Color forground_color, Color background_color);
     void present();
 private:
