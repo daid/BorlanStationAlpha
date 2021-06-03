@@ -112,7 +112,7 @@ Frontend::~Frontend()
     fflush(stdout);
 }
 
-uint32_t Frontend::getInput()
+uint32_t Frontend::get_input()
 {
     char c;
     while(1)
@@ -155,7 +155,7 @@ uint32_t Frontend::getInput()
     return 0;
 }
 
-Vector2i Frontend::beginDrawing()
+Vector2i Frontend::begin_drawing()
 {
 #ifdef __linux__
     struct winsize w;

@@ -10,7 +10,7 @@ void HudView::draw(Frontend& frontend)
 
 void HudView::draw_log(Frontend& frontend)
 {
-    auto size = frontend.getDrawSize();
+    auto size = frontend.get_draw_size();
     Color fg(1, 1, 1);
     Color bg(0, 0, 0);
 

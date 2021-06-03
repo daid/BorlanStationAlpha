@@ -12,12 +12,12 @@ template<typename...> class Engine;
 class EntityBase
 {
 public:
-    EntityBase() : id(detail::no_entity) {}
+    EntityBase() : id(detail::NO_ENTITY) {}
 
     bool operator==(const EntityBase& other) const { return id == other.id; }
     bool operator!=(const EntityBase& other) const { return id != other.id; }
     bool operator<(const EntityBase& other) const { return id < other.id; }
-    explicit operator bool() const { return id != detail::no_entity; }
+    explicit operator bool() const { return id != detail::NO_ENTITY; }
 
     std::size_t hash() const { return std::hash<detail::IdType>{}(id); }
 protected:

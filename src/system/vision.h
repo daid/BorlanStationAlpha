@@ -1,3 +1,3 @@
 #pragma once
 
-void runVisionSystem();
+void run_vision_system();

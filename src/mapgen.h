@@ -9,13 +9,13 @@ public:
     Mapgen();
 
 private:
-    void setWallH(Vector2i position);
-    void setWallV(Vector2i position);
+    void set_wall_h(Vector2i position);
+    void set_wall_v(Vector2i position);
 
-    bool addRoom(Vector2i position, Vector2i size);
+    bool add_room(Vector2i position, Vector2i size);
 
-    bool isWallForDoor(Vector2i position);
-    bool isWallForWindow(Vector2i position);
+    bool is_wall_for_door(Vector2i position);
+    bool is_wall_for_window(Vector2i position);
 
     enum SimpleCell {
         Unset,

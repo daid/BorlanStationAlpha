@@ -5,5 +5,5 @@
 
 namespace ecs::detail {
     using IdType = std::size_t;
-    static constexpr IdType no_entity = std::numeric_limits<IdType>::max();
+    static constexpr IdType NO_ENTITY = std::numeric_limits<IdType>::max();
 }

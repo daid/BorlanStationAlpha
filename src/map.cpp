@@ -3,7 +3,7 @@
 
 Map map;
 
-bool Map::hasSolidEntity(Vector2i position)
+bool Map::has_solid_entity(Vector2i position)
 {
     if (position.x < 0 || position.y < 0 || position.x >= size().x || position.y >= size().y)
         return true;
@@ -13,7 +13,7 @@ bool Map::hasSolidEntity(Vector2i position)
     return false;
 }
 
-bool Map::visionBlocked(Vector2i position)
+bool Map::vision_blocked(Vector2i position)
 {
     if (position.x < 0 || position.y < 0 || position.x >= size().x || position.y >= size().y)
         return true;
@@ -23,16 +23,16 @@ bool Map::visionBlocked(Vector2i position)
     return false;
 }
 
-void Map::visitFieldOfView(Vector2i center, int radius, const std::function<void(Vector2i)>& callback)
+void Map::visit_field_of_view(Vector2i center, int radius, const std::function<void(Vector2i)>& callback)
 {
     callback(center);
-    fovStep(center, {1, 0}, radius, 1, -1.0, 1.0, callback);
-    fovStep(center, {0, 1}, radius, 1, -1.0, 1.0, callback);
-    fovStep(center, {-1, 0}, radius, 1, -1.0, 1.0, callback);
-    fovStep(center, {0, -1}, radius, 1, -1.0, 1.0, callback);
+    fov_step(center, {1, 0}, radius, 1, -1.0, 1.0, callback);
+    fov_step(center, {0, 1}, radius, 1, -1.0, 1.0, callback);
+    fov_step(center, {-1, 0}, radius, 1, -1.0, 1.0, callback);
+    fov_step(center, {0, -1}, radius, 1, -1.0, 1.0, callback);
 }
 
-void Map::fovStep(Vector2i center, Vector2i dir, int radius, int row, float fmin, float fmax, const std::function<void(Vector2i)>& callback)
+void Map::fov_step(Vector2i center, Vector2i dir, int radius, int row, float fmin, float fmax, const std::function<void(Vector2i)>& callback)
 {
     if (row >= radius)
         return;
@@ -54,22 +54,22 @@ void Map::fovStep(Vector2i center, Vector2i dir, int radius, int row, float fmin
             continue;
 
         callback(p);
-        if (visionBlocked(p))
+        if (vision_blocked(p))
         {
-            fovStep(center, dir, radius, row + 1, fmin, start, callback);
+            fov_step(center, dir, radius, row + 1, fmin, start, callback);
             fmin = end;
         }
     }
 
-    fovStep(center, dir, radius, row + 1, fmin, fmax, callback);
+    fov_step(center, dir, radius, row + 1, fmin, fmax, callback);
 }
 
-void Position::onCreate(ecs::EntityBase e)
+void Position::on_add(ecs::EntityBase e)
 {
     map(x, y).entities.insert(engine.upgrade(e));
 }
 
-void Position::onDestroy(ecs::EntityBase e)
+void Position::on_remove(ecs::EntityBase e)
 {
     map(x, y).entities.erase(engine.upgrade(e));
 }

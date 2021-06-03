@@ -29,7 +29,7 @@ Frontend::~Frontend()
     SDL_Quit();
 }
 
-uint32_t Frontend::getInput()
+uint32_t Frontend::get_input()
 {
     while(1) {
         SDL_Event event;
@@ -53,7 +53,7 @@ uint32_t Frontend::getInput()
     }
 }
 
-Vector2i Frontend::beginDrawing()
+Vector2i Frontend::begin_drawing()
 {
     int w, h;
     SDL_GetWindowSize(window, &w, &h);

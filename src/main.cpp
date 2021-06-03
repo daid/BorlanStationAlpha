@@ -17,10 +17,10 @@
 
 ECS engine;
 
-bool actionMove(ECS::Entity e, Vector2i offset)
+bool action_move(ECS::Entity e, Vector2i offset)
 {
     auto position = e.get<Position>() + offset;
-    if (e.has<Solid>() && map.hasSolidEntity(position))
+    if (e.has<Solid>() && map.has_solid_entity(position))
         return false;
     e.remove<Position>();
     e.set(Position{position});
@@ -45,25 +45,25 @@ int main(int argc, char** argv)
     mlog.add("Test12345");
 
     while(1) {
-        runOxygenSystem();
-        runVisionSystem();
+        run_oxygen_system();
+        run_vision_system();
 
         while(mlog.has_new_messages())
             mlog.confirm_new_message();
 
-        frontend.beginDrawing();
+        frontend.begin_drawing();
         map_view.draw(frontend);
         hud_view.draw(frontend);
         frontend.present();
 
-        auto input = frontend.getInput();
+        auto input = frontend.get_input();
         switch(input)
         {
         case INPUT_QUIT: return 0;
-        case INPUT_RIGHT: actionMove(player, Vector2i{1, 0}); break;
-        case INPUT_LEFT: actionMove(player, Vector2i{-1, 0}); break;
-        case INPUT_DOWN: actionMove(player, Vector2i{0, 1}); break;
-        case INPUT_UP: actionMove(player, Vector2i{0, -1}); break;
+        case INPUT_RIGHT: action_move(player, Vector2i{1, 0}); break;
+        case INPUT_LEFT: action_move(player, Vector2i{-1, 0}); break;
+        case INPUT_DOWN: action_move(player, Vector2i{0, 1}); break;
+        case INPUT_UP: action_move(player, Vector2i{0, -1}); break;
         }
 
         //for(auto e : map(player.get<Position>()).entities) { if (e.has<Solid>()) e.destroy(); }

@@ -11,7 +11,7 @@ public:
     bool has() const { return engine->template has<T>(*this); }
 
     template<typename T, typename = std::enable_if_t<!std::is_empty_v<T>>>
-    T& get() { return engine->template get<T>(*this); }
+    T& get() const { return engine->template get<T>(*this); }
 
     template<typename T, typename = std::enable_if_t<!std::is_empty_v<T>>>
     Entity& set(const T& value) { engine->set(*this, value); return *this; }

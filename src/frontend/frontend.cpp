@@ -1,7 +1,7 @@
 #include "frontend.h"
 
 
-Vector2i Frontend::getDrawSize()
+Vector2i Frontend::get_draw_size()
 {
     return buffer.size();
 }

@@ -5,7 +5,7 @@
 
 void MapView::draw(Frontend& frontend)
 {
-    auto size = frontend.getDrawSize();
+    auto size = frontend.get_draw_size();
 
     for(auto&& [e, position] : engine.query<Player, Position>()) {
         camera_position = position - Vector2i(size.x / 2, (size.y - size.y / 8) / 2);

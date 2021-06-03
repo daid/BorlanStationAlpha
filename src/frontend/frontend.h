@@ -19,10 +19,10 @@ public:
     Frontend();
     ~Frontend();
 
-    uint32_t getInput();
+    uint32_t get_input();
 
-    Vector2i beginDrawing();
-    Vector2i getDrawSize();
+    Vector2i begin_drawing();
+    Vector2i get_draw_size();
     void draw(int x, int y, char c, Color forground_color);
     void setbg(int x, int y, Color background_color);
     void draw(int x, int y, char c, Color forground_color, Color background_color);

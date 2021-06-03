@@ -25,7 +25,7 @@ public:
 
     Entity create()
     {
-        assert(next_id != ecs::detail::no_entity);
+        assert(next_id != ecs::detail::NO_ENTITY);
         return Entity(next_id++, this);
     }
 
@@ -42,50 +42,50 @@ public:
         public:
             using ResultType = typename Cons<Entity, typename EmptyFilter<T&, ARGS&...>::type>::type;
 
-            Iterator& operator++() { iter++; checkSkip(); return *this; }
+            Iterator& operator++() { iter++; check_skip(); return *this; }
             bool operator!=(const Iterator& other) const { return iter != other.iter; }
             ResultType operator*()
             {
                 if constexpr (std::is_empty_v<T>)
-                    return std::tuple_cat(std::tuple<Entity>(Entity(iterId(), engine)), get<ARGS>()...);
+                    return std::tuple_cat(std::tuple<Entity>(Entity(iter_id(), engine)), get<ARGS>()...);
                 else
-                    return std::tuple_cat(std::tuple<Entity, T&>(Entity(iterId(), engine), iter->second), get<ARGS>()...);
+                    return std::tuple_cat(std::tuple<Entity, T&>(Entity(iter_id(), engine), iter->second), get<ARGS>()...);
             }
 
         private:
             template<typename T2, typename = std::enable_if_t<std::is_empty_v<T2>>> std::tuple<> get() { return {}; }
             template<typename T2, typename = std::enable_if_t<!std::is_empty_v<T2>>> std::tuple<T2&> get()
             {
-                return {std::get<ecs::detail::Storage<T2>>(engine->storage).get(iterId())};
+                return {std::get<ecs::detail::Storage<T2>>(engine->storage).get(iter_id())};
             }
 
             using iter_type = typename ecs::detail::Storage<T>::StorageType::iterator;
-            Iterator(iter_type _iter, Engine* _engine) : iter(_iter), engine(_engine) { checkSkip(); }
+            Iterator(iter_type _iter, Engine* _engine) : iter(_iter), engine(_engine) { check_skip(); }
 
-            void checkSkip()
+            void check_skip()
             {
                 if constexpr (sizeof...(ARGS) > 0)
                 {
                     if (iter == std::get<ecs::detail::Storage<T>>(engine->storage).data.end())
                         return;
-                    if (checkSkipPartial<ARGS...>())
+                    if (check_skip_partial<ARGS...>())
                     {
                         iter++;
-                        checkSkip();
+                        check_skip();
                     }
                 }
             }
 
-            template<typename T2, typename... ARGS2> bool checkSkipPartial()
+            template<typename T2, typename... ARGS2> bool check_skip_partial()
             {
-                if (!std::get<ecs::detail::Storage<T2>>(engine->storage).has(iterId()))
+                if (!std::get<ecs::detail::Storage<T2>>(engine->storage).has(iter_id()))
                     return true;
                 if constexpr (sizeof...(ARGS2) > 0)
-                    return checkSkipPartial<ARGS2...>();
+                    return check_skip_partial<ARGS2...>();
                 return false;
             }
 
-            ecs::detail::IdType iterId() const
+            ecs::detail::IdType iter_id() const
             {
                 if constexpr(std::is_empty_v<T>)
                     return *iter;

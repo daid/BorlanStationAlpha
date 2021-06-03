@@ -14,8 +14,8 @@ template<typename T> struct TypeSink { using Type = void; };
 
 template<typename T, typename=void, typename=void> struct HasEntityCallback : std::false_type{};
 template<typename T> struct HasEntityCallback<T,
-    typename TypeSink<decltype(&T::onCreate)>::Type,
-    typename TypeSink<decltype(&T::onDestroy)>::Type> : std::true_type{};
+    typename TypeSink<decltype(&T::on_add)>::Type,
+    typename TypeSink<decltype(&T::on_remove)>::Type> : std::true_type{};
 
 template<typename T>
 class Storage<T, typename std::enable_if_t<!std::is_empty_v<T>>> {
@@ -37,7 +37,7 @@ public:
         if (res.second)
         {
             if constexpr (HasEntityCallback<T>::value)
-                res.first->second.onCreate(EntityBase(id));
+                res.first->second.on_add(EntityBase(id));
         }
     }
 
@@ -47,7 +47,7 @@ public:
         if (it != data.end())
         {
             if constexpr (HasEntityCallback<T>::value)
-                it->second.onDestroy(EntityBase(id));
+                it->second.on_remove(EntityBase(id));
             data.erase(it);
         }
     }

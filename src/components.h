@@ -14,8 +14,8 @@ public:
 class Position : public Vector2i
 {
 public:
-    void onCreate(ecs::EntityBase e);
-    void onDestroy(ecs::EntityBase e);
+    void on_add(ecs::EntityBase e);
+    void on_remove(ecs::EntityBase e);
 };
 
 class Solid {};
