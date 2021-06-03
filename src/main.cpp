@@ -42,32 +42,43 @@ int main(int argc, char** argv)
     HudView hud_view;
 
     for(int n=0; n<20; n++)
-        mlog.add("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris at mattis nunc, eget pellentesque turpis. Interdum et malesuada fames ac ante ipsum primis in faucibus. Curabitur elementum ipsum vel tortor semper bibendum. Ut molestie mattis lacus, consectetur scelerisque elit eleifend vitae. Maecenas efficitur fringilla lectus, a eleifend justo cursus vel. Maecenas eget arcu hendrerit, sagittis erat nec, sagittis dui. Cras risus erat, porttitor vel rutrum sed, lacinia at lacus.");
+        mlog.add("This is test message @", n);
     mlog.add("Test12345");
 
+    while(mlog.has_new_messages())
+        mlog.confirm_new_message();
+    run_vision_system();
+
     while(1) {
-        run_oxygen_system();
-        run_vision_system();
-
-        while(mlog.has_new_messages())
-            mlog.confirm_new_message();
-
         frontend.begin_drawing();
         map_view.draw(frontend);
         hud_view.draw(frontend);
         frontend.present();
 
         auto input = frontend.get_input();
-        switch(input)
+        bool did_action = false;
+        if (!mlog.has_new_messages())
         {
-        case INPUT_QUIT: return 0;
-        case INPUT_RIGHT: action_move(player, Vector2i{1, 0}); break;
-        case INPUT_LEFT: action_move(player, Vector2i{-1, 0}); break;
-        case INPUT_DOWN: action_move(player, Vector2i{0, 1}); break;
-        case INPUT_UP: action_move(player, Vector2i{0, -1}); break;
+            switch(input) {
+            case INPUT_QUIT: return 0;
+            case INPUT_RIGHT: did_action = action_move(player, Vector2i{1, 0}); break;
+            case INPUT_LEFT: did_action = action_move(player, Vector2i{-1, 0}); break;
+            case INPUT_DOWN: did_action = action_move(player, Vector2i{0, 1}); break;
+            case INPUT_UP: did_action = action_move(player, Vector2i{0, -1}); break;
+            }
+            //for(auto e : map(player.get<Position>()).entities) { if (e.has<Solid>() && !e.has<Player>()) e.destroy(); }
         }
 
-        //for(auto e : map(player.get<Position>()).entities) { if (e.has<Solid>() && !e.has<Player>()) e.destroy(); }
+        if (did_action) {
+            run_oxygen_system();
+            run_vision_system();
+        }
+        if (did_action || input) {
+            while(mlog.has_new_messages() && hud_view.msg_line_count > 0) {
+                mlog.confirm_new_message();
+                hud_view.msg_line_count--;
+            }
+        }
     }
     
     return 0;

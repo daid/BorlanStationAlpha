@@ -31,6 +31,12 @@ void Frontend::draw(int x, int y, std::string_view str, Color forground_color)
         draw(x++, y, c, forground_color);
 }
 
+void Frontend::draw(int x, int y, std::string_view str, Color forground_color, Color background_color)
+{
+    for(auto c : str)
+        draw(x++, y, c, forground_color, background_color);
+}
+
 void Frontend::draw(int x, int y, char c, Color forground_color, Color background_color)
 {
     if (x < 0 || y < 0) return;

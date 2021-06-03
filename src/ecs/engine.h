@@ -68,8 +68,7 @@ public:
                 {
                     if (iter == std::get<ecs::detail::Storage<T>>(engine->storage).data.end())
                         return;
-                    if (check_skip_partial<ARGS...>())
-                    {
+                    if (check_skip_partial<ARGS...>()) {
                         iter++;
                         check_skip();
                     }

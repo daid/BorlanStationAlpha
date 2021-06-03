@@ -15,6 +15,7 @@ void HudView::draw(Frontend& frontend)
 {
     auto size = frontend.get_draw_size();
     int log_line_count = std::max(4, size.y / 6);
+    msg_line_count = log_line_count;
 
     for(int x=0; x<size.x - 15; x++)
         frontend.draw(x, size.y - log_line_count - 1, '-', fg, bg);
@@ -60,9 +61,14 @@ void HudView::draw_log(Frontend& frontend, Vector2i position, Vector2i size)
         for(auto line : lines) {
             frontend.draw(position.x, position.y + y, line, fg);
             y--;
-            if (y < 0) return;
+            if (y < 0)
+                break;
         }
+        if (y < 0)
+            break;
 
         frontend.draw(position.x, position.y + y, msg, fg);
     }
+    if (mlog.has_new_messages())
+        frontend.draw(position.x + size.x - 6, position.y + size.y - 1, " MORE ", bg, fg);
 }

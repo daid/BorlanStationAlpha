@@ -34,8 +34,7 @@ public:
     void set(IdType id, const T& value)
     {
         auto res = data.insert_or_assign(id, value);
-        if (res.second)
-        {
+        if (res.second) {
             if constexpr (HasEntityCallback<T>::value)
                 res.first->second.on_add(EntityBase(id));
         }
@@ -44,8 +43,7 @@ public:
     void remove(IdType id)
     {
         auto it = data.find(id);
-        if (it != data.end())
-        {
+        if (it != data.end()) {
             if constexpr (HasEntityCallback<T>::value)
                 it->second.on_remove(EntityBase(id));
             data.erase(it);
@@ -71,8 +69,7 @@ public:
     void remove(IdType id)
     {
         auto it = data.find(id);
-        if (it != data.end())
-        {
+        if (it != data.end()) {
             data.erase(it);
         }
     }

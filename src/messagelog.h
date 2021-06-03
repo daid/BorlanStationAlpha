@@ -1,5 +1,7 @@
 #pragma once
 
+#include "format.h"
+
 #include <vector>
 #include <string>
 #include <string_view>
@@ -8,6 +10,10 @@
 class MessageLog
 {
 public:
+    template<typename... ARGS>
+    void add(std::string_view msg, const ARGS&... args) {
+        new_messages.push_back(std::move(format(msg, args...)));
+    }
     void add(std::string_view msg);
 
     //Get the latest seen message. Offset: 0=latest, 1=one before that, etc...

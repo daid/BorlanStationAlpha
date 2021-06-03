@@ -39,8 +39,7 @@ void Map::fov_step(Vector2i center, Vector2i dir, int radius, int row, float fmi
     if (fmax - fmin < 0.001)
         return;
     auto side = Vector2i{-dir.y, dir.x};
-    for(int n=-row; n<=row; n++)
-    {
+    for(int n=-row; n<=row; n++) {
         auto start = (float(n) - 0.5f) / (float(row) + 0.5f);
         auto end = (float(n) + 0.5f) / (float(row) + 0.5f);
         
@@ -54,8 +53,7 @@ void Map::fov_step(Vector2i center, Vector2i dir, int radius, int row, float fmi
             continue;
 
         callback(p);
-        if (vision_blocked(p))
-        {
+        if (vision_blocked(p)) {
             fov_step(center, dir, radius, row + 1, fmin, start, callback);
             fmin = end;
         }

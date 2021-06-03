@@ -29,8 +29,7 @@ void MapView::draw(Frontend& frontend)
                 for(auto e : cell.entities) {
                     if (e.has<Visual>()) {
                         auto visual = e.get<Visual>();
-                        if (visual.priority > shown_priority)
-                        {
+                        if (visual.priority > shown_priority) {
                             frontend.draw(x, y, visual.c, Color(visual.color) * cell.light_level);
                             cell.last_seen_as = visual.c;
                             shown_priority = visual.priority;
