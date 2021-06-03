@@ -26,7 +26,7 @@ protected:
     detail::IdType id;
 
     template<typename...> friend class ecs::Engine;
-    template<typename> friend class ecs::detail::Storage;
+    template<typename, typename> friend class ecs::detail::Storage;
 };
 
 }
