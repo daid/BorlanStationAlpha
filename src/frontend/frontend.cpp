@@ -44,3 +44,12 @@ void Frontend::draw(int x, int y, char c, Color forground_color, Color backgroun
 
     buffer(x, y) = Tile{c, forground_color, background_color};
 }
+
+void Frontend::fill(Vector2i position, Vector2i size, char c, Color forground_color, Color background_color)
+{
+    for(int y=0; y<size.y; y++) {
+        for(int x=0; x<size.x; x++) {
+            draw(position.x + x, position.y + y, c, forground_color, background_color);
+        }
+    }
+}

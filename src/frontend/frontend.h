@@ -29,6 +29,7 @@ public:
     void draw(int x, int y, std::string_view str, Color forground_color);
     void draw(int x, int y, std::string_view str, Color forground_color, Color background_color);
     void draw(int x, int y, char c, Color forground_color, Color background_color);
+    void fill(Vector2i position, Vector2i size, char c, Color forground_color, Color background_color);
     void present();
 private:
     struct Tile

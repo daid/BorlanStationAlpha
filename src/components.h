@@ -4,6 +4,9 @@
 #include "color.h"
 #include "ecs.h"
 
+#include <vector>
+
+
 class Health
 {
 public:
@@ -39,9 +42,22 @@ public:
     int priority{0};
 };
 
+class Item
+{
+public:
+    std::string name;
+};
+
+class Inventory
+{
+public:
+    std::vector<ecs::EntityBase> contents;
+};
+
 using ECS = ecs::Engine<
     Position, Health, Visual,
     Solid, BlockVision, Light,
-    Player
+    Player,
+    Item, Inventory
 >;
 extern ECS engine;

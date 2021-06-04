@@ -216,6 +216,8 @@ Mapgen::Mapgen()
                     engine.create().set(Light{4.0f, HsvColor(irandom(0, 360), 0, 100)}).set(Position{offset + Vector2i{spacing.x * x, spacing.y * y}});
             }
         }
+
+        engine.create().set(Item{"TestItem"}).set(Visual{'!', HsvColor(0, 100, 100)}).set(Position{room.position + room.size / 2});
     }
 
 

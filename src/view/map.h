@@ -1,12 +1,12 @@
 #pragma once
 
-#include "frontend/frontend.h"
+#include "view.h"
 
 
-class MapView
+class MapView : public View
 {
 public:
-    void draw(Frontend& frontend);
+    void draw(Frontend& frontend) override;
 
 private:
     Vector2i camera_position;

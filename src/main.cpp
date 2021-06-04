@@ -13,9 +13,11 @@
 
 #include "view/map.h"
 #include "view/hud.h"
+#include "view/menu.h"
 
 
 ECS engine;
+
 
 bool action_move(ECS::Entity e, Vector2i offset)
 {
@@ -27,12 +29,52 @@ bool action_move(ECS::Entity e, Vector2i offset)
     return true;
 }
 
+bool action_pick(ECS::Entity e)
+{
+    for(auto it : map(e.get<Position>()).entities) {
+        auto ce = engine.upgrade(it);
+        if (ce.has<Item>()) {
+            ce.remove<Position>();
+            e.get<Inventory>().contents.push_back(ce);
+            return true;
+        }
+    }
+    return false;
+}
+
+bool action_drop(ECS::Entity from, ECS::Entity target)
+{
+    auto& inv = from.get<Inventory>();
+    inv.contents.erase(std::remove_if(inv.contents.begin(), inv.contents.end(), [target](const ecs::EntityBase& e) { return target == e; }), inv.contents.end());
+    target.set(from.get<Position>());
+    return true;
+}
+
+std::optional<ECS::Entity> select_from_inventory(Frontend& frontend, Inventory& inv, std::string_view title)
+{
+    std::vector<std::string> options;
+    for(auto e : engine.upgrade(inv.contents)) {
+        options.push_back(e.get<Item>().name);
+    }
+    if (options.empty()) {
+        mlog.add("Got no items.");
+        return {};
+    }
+
+    MenuView menu(title, options);
+    auto res = menu.get_result(frontend);
+    if (res.has_value()) {
+        return engine.upgrade(inv.contents[res.value()]);
+    }
+    return {};
+}
+
 int main(int argc, char** argv)
 {
     Mapgen();
 
     auto player = engine.create();
-    player.set(Position{{12, 4}}).set(Visual{'@', HsvColor(0, 0, 100), 10}).set<Player>();
+    player.set(Position{{12, 4}}).set(Visual{'@', HsvColor(0, 0, 100), 10}).set<Player>().set(Inventory{});
     player.set(Health{20, 40});
     //player.set<Solid>();
     player.set(Light{10, HsvColor(0, 0, 50)});
@@ -50,10 +92,7 @@ int main(int argc, char** argv)
     run_vision_system();
 
     while(1) {
-        frontend.begin_drawing();
-        map_view.draw(frontend);
-        hud_view.draw(frontend);
-        frontend.present();
+        View::draw_views(frontend);
 
         auto input = frontend.get_input();
         bool did_action = false;
@@ -65,6 +104,13 @@ int main(int argc, char** argv)
             case INPUT_LEFT: did_action = action_move(player, Vector2i{-1, 0}); break;
             case INPUT_DOWN: did_action = action_move(player, Vector2i{0, 1}); break;
             case INPUT_UP: did_action = action_move(player, Vector2i{0, -1}); break;
+            case 'p': did_action = action_pick(player); break;
+            case 'd': {
+                auto res = select_from_inventory(frontend, player.get<Inventory>(), "Which item to drop?");
+                if (res.has_value()) {
+                    did_action = action_drop(player, res.value());
+                }
+            }break;
             }
             //for(auto e : map(player.get<Position>()).entities) { if (e.has<Solid>() && !e.has<Player>()) e.destroy(); }
         }

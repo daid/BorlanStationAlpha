@@ -1,6 +1,7 @@
 #pragma once
 
 #include <tuple>
+#include <vector>
 #include <type_traits>
 
 
@@ -33,7 +34,33 @@ public:
     {
         return Entity(e.id, this);
     }
-    
+
+    class VectorWrap
+    {
+    public:
+        class Iterator : public std::vector<ecs::EntityBase>::iterator {
+        public:
+            Iterator(Engine* _engine, const std::vector<ecs::EntityBase>::iterator& i) : std::vector<ecs::EntityBase>::iterator(i), engine(_engine) {}
+            Iterator(const std::vector<ecs::EntityBase>::iterator& i) : std::vector<ecs::EntityBase>::iterator(i), engine(nullptr) {}
+
+            Entity operator*() { return engine->upgrade(std::vector<ecs::EntityBase>::iterator::operator*()); }
+        private:
+            Engine* engine;
+        };
+        VectorWrap(Engine* _engine, std::vector<ecs::EntityBase>& _v) : engine(_engine), v(_v) {}
+
+        Iterator begin() { return {engine, v.begin()}; }
+        Iterator end() { return v.end(); }
+    private:
+        Engine* engine;
+        std::vector<ecs::EntityBase>& v;
+    };
+
+    VectorWrap upgrade(std::vector<ecs::EntityBase>& v)
+    {
+        return VectorWrap(this, v);
+    }
+
     template<typename T, typename... ARGS> class Query
     {
     public:
