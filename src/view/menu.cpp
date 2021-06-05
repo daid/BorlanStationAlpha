@@ -47,8 +47,9 @@ std::optional<int> MenuView::get_result(Frontend& frontend)
         auto input = frontend.get_input();
         if (input == INPUT_UP) selected_index = (selected_index + options.size() - 1) % options.size();
         if (input == INPUT_DOWN) selected_index = (selected_index + 1) % options.size();
-        if (input == '\n') return selected_index;
+        if (input == '\r') return selected_index;
         if (input == INPUT_QUIT) return {};
+        if (input == INPUT_CANCEL) return {};
         if (input >= 'a' && input < 'a' + options.size()) return input - 'a';
     }
 }

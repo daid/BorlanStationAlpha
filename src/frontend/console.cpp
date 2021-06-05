@@ -121,6 +121,7 @@ uint32_t Frontend::get_input()
             return INPUT_QUIT;
         if (c == 3) return INPUT_QUIT;
         else if (c >= ' ' && c <= '~') return c;
+        else if (c == '\r') return c;
         else if (c == 0x1B) {
             //Escape, check if we have a sequence or just the escape key pressed.
             fd_set set;
@@ -145,7 +146,7 @@ uint32_t Frontend::get_input()
                     printf("%d ", buf[n]);
                 fflush(stdout);
             } else {
-                return 0; //Escape key.
+                return INPUT_CANCEL; //Escape key.
             }
         } else {
             printf("\x1B[0m?%d ", c);

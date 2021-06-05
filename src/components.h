@@ -53,11 +53,19 @@ class Inventory
 public:
     std::vector<ecs::EntityBase> contents;
 };
+class InInventory
+{
+public:
+    ecs::EntityBase container;
+
+    void on_add(ecs::EntityBase e);
+    void on_remove(ecs::EntityBase e);
+};
 
 using ECS = ecs::Engine<
     Position, Health, Visual,
     Solid, BlockVision, Light,
     Player,
-    Item, Inventory
+    Item, Inventory, InInventory
 >;
 extern ECS engine;

@@ -5,6 +5,7 @@
 static SDL_Window *window;
 static SDL_Renderer *renderer;
 static SDL_Texture *font_texture;
+static bool quit = false;
 
 Frontend::Frontend()
 {
@@ -31,25 +32,29 @@ Frontend::~Frontend()
 
 uint32_t Frontend::get_input()
 {
+    if (quit) return INPUT_QUIT;
     while(1) {
         SDL_Event event;
         SDL_WaitEvent(&event);
-        if (event.type == SDL_TEXTINPUT && strlen(event.text.text) == 1)
+        if (event.type == SDL_TEXTINPUT && strlen(event.text.text) == 1) {
             return event.text.text[0];
-        if (event.type == SDL_KEYDOWN) {
+        } else if (event.type == SDL_KEYDOWN) {
             if (event.key.keysym.sym == SDLK_RIGHT) return INPUT_RIGHT;
-            if (event.key.keysym.sym == SDLK_LEFT) return INPUT_LEFT;
-            if (event.key.keysym.sym == SDLK_DOWN) return INPUT_DOWN;
-            if (event.key.keysym.sym == SDLK_UP) return INPUT_UP;
-            if (event.key.keysym.sym == SDLK_KP_6 && !(event.key.keysym.mod & KMOD_NUM)) return INPUT_RIGHT;
-            if (event.key.keysym.sym == SDLK_KP_4 && !(event.key.keysym.mod & KMOD_NUM)) return INPUT_LEFT;
-            if (event.key.keysym.sym == SDLK_KP_2 && !(event.key.keysym.mod & KMOD_NUM)) return INPUT_DOWN;
-            if (event.key.keysym.sym == SDLK_KP_8 && !(event.key.keysym.mod & KMOD_NUM)) return INPUT_UP;
-        }
-        if (event.type == SDL_QUIT)
+            else if (event.key.keysym.sym == SDLK_LEFT) return INPUT_LEFT;
+            else if (event.key.keysym.sym == SDLK_DOWN) return INPUT_DOWN;
+            else if (event.key.keysym.sym == SDLK_UP) return INPUT_UP;
+            else if (event.key.keysym.sym == SDLK_KP_6 && !(event.key.keysym.mod & KMOD_NUM)) return INPUT_RIGHT;
+            else if (event.key.keysym.sym == SDLK_KP_4 && !(event.key.keysym.mod & KMOD_NUM)) return INPUT_LEFT;
+            else if (event.key.keysym.sym == SDLK_KP_2 && !(event.key.keysym.mod & KMOD_NUM)) return INPUT_DOWN;
+            else if (event.key.keysym.sym == SDLK_KP_8 && !(event.key.keysym.mod & KMOD_NUM)) return INPUT_UP;
+            else if (event.key.keysym.sym == SDLK_RETURN || event.key.keysym.sym == SDLK_KP_ENTER) return '\r';
+            else if (event.key.keysym.sym == SDLK_ESCAPE) return INPUT_CANCEL;
+        } else if (event.type == SDL_QUIT) {
+            quit = true;
             return INPUT_QUIT;
-        if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED)
+        } else if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
             return 0;
+        }
     }
 }
 

@@ -35,7 +35,7 @@ bool action_pick(ECS::Entity e)
         auto ce = engine.upgrade(it);
         if (ce.has<Item>()) {
             ce.remove<Position>();
-            e.get<Inventory>().contents.push_back(ce);
+            ce.set(InInventory{e});
             return true;
         }
     }
@@ -44,8 +44,7 @@ bool action_pick(ECS::Entity e)
 
 bool action_drop(ECS::Entity from, ECS::Entity target)
 {
-    auto& inv = from.get<Inventory>();
-    inv.contents.erase(std::remove_if(inv.contents.begin(), inv.contents.end(), [target](const ecs::EntityBase& e) { return target == e; }), inv.contents.end());
+    target.remove<InInventory>();
     target.set(from.get<Position>());
     return true;
 }
