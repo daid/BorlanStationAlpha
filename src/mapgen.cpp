@@ -29,6 +29,7 @@ Mapgen::Mapgen()
 
     Vector2i position{irandom(10, map.size().x - 20), irandom(10, map.size().y - 20)};
     Vector2i size{irandom(5, 10), irandom(5, 10)};
+    start = position + size / 2;
     add_room(position, size);
     door_options.push_back({position + Vector2i{size.x / 2, 0}, Up, true});
     door_options.push_back({position + Vector2i{size.x / 2, size.y - 1}, Down, true});
@@ -217,7 +218,8 @@ Mapgen::Mapgen()
             }
         }
 
-        engine.create().set(Item{"TestItem"}).set(Visual{'!', HsvColor(0, 100, 100)}).set(Position{room.position + room.size / 2});
+        engine.create().set(Item{"TestItem"}).set(Visual{'!', HsvColor(0, 100, 100), -1}).set(Position{room.position + room.size / 2});
+        engine.create().set<Solid>().set(Visual{'S', HsvColor(240, 100, 100)}).set(Position{room.position + room.size / 2}).set(RandomWalk{0, 2});
     }
 
 

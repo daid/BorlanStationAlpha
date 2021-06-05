@@ -3,69 +3,77 @@
 #include "vector2.h"
 #include "color.h"
 #include "ecs.h"
+#include "roll.h"
 
 #include <vector>
 
 
-class Health
+struct Health
 {
-public:
     int current;
     int max;
 };
 
-class Position : public Vector2i
+struct Position : public Vector2i
 {
-public:
     void on_add(ecs::EntityBase e);
     void on_remove(ecs::EntityBase e);
 };
 
-class Solid {};
-class BlockVision {};
-class Light {
-public:
+struct Solid {};
+struct BlockVision {};
+struct Light {
     float distance;
     Color color{1,1,1};
 };
 
-class Player
+struct Player
 {
-public:
 };
 
-class Visual
+struct Visual
 {
-public:
     char c;
     HsvColor color;
     int priority{0};
 };
 
-class Item
+struct Item
 {
-public:
     std::string name;
 };
 
-class Inventory
+struct Inventory
 {
-public:
     std::vector<ecs::EntityBase> contents;
 };
-class InInventory
+struct InInventory
 {
-public:
     ecs::EntityBase container;
 
     void on_add(ecs::EntityBase e);
     void on_remove(ecs::EntityBase e);
 };
 
+struct Enemy {};
+
+struct NaturalMeleeAttack
+{
+    int accuracy;
+    Roll damage;
+};
+
+struct RandomWalk
+{
+    int countdown;
+    int delay;
+};
+
 using ECS = ecs::Engine<
     Position, Health, Visual,
     Solid, BlockVision, Light,
     Player,
-    Item, Inventory, InInventory
+    Item, Inventory, InInventory,
+    RandomWalk
 >;
 extern ECS engine;

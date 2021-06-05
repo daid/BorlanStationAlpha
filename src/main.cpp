@@ -10,6 +10,7 @@
 
 #include "system/vision.h"
 #include "system/oxygen.h"
+#include "system/ai.h"
 
 #include "view/map.h"
 #include "view/hud.h"
@@ -70,12 +71,12 @@ std::optional<ECS::Entity> select_from_inventory(Frontend& frontend, Inventory& 
 
 int main(int argc, char** argv)
 {
-    Mapgen();
+    Mapgen mg;
 
     auto player = engine.create();
-    player.set(Position{{12, 4}}).set(Visual{'@', HsvColor(0, 0, 100), 10}).set<Player>().set(Inventory{});
+    player.set(Position{mg.start}).set(Visual{'@', HsvColor(0, 0, 100), 10}).set<Player>().set(Inventory{});
     player.set(Health{20, 40});
-    //player.set<Solid>();
+    player.set<Solid>();
     player.set(Light{10, HsvColor(0, 0, 50)});
 
     Frontend frontend;
@@ -115,6 +116,7 @@ int main(int argc, char** argv)
         }
 
         if (did_action) {
+            run_ai_system();
             run_oxygen_system();
             run_vision_system();
         }

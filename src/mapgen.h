@@ -8,6 +8,7 @@ class Mapgen
 public:
     Mapgen();
 
+    Vector2i start;
 private:
     void set_wall_h(Vector2i position);
     void set_wall_v(Vector2i position);
