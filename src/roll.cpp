@@ -4,6 +4,11 @@
 #include <iostream>
 #include <cctype>
 
+Roll::Roll(int count, int sides, int off)
+: die_count(count), die_sides(sides), offset(off)
+{
+}
+
 Roll::Roll(std::string_view desc)
 {
     size_t n=0;
@@ -51,5 +56,5 @@ int Roll::operator()()
     int result = offset;
     for(int n=0; n<die_count; n++)
         result += irandom(1, die_sides);
-    return std::min(1, result);
+    return std::max(1, result);
 }

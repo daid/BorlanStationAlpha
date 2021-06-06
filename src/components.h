@@ -14,6 +14,8 @@ struct Health
     int max;
 };
 
+struct Name : public std::string {};
+
 struct Position : public Vector2i
 {
     void on_add(ecs::EntityBase e);
@@ -21,6 +23,7 @@ struct Position : public Vector2i
 };
 
 struct Solid {};
+struct Airtight{};
 struct BlockVision {};
 struct Light {
     float distance;
@@ -38,10 +41,7 @@ struct Visual
     int priority{0};
 };
 
-struct Item
-{
-    std::string name;
-};
+struct Item {};
 
 struct Inventory
 {
@@ -55,25 +55,26 @@ struct InInventory
     void on_remove(ecs::EntityBase e);
 };
 
-struct Enemy {};
+struct Enemy {
+    enum State {
+        Wander,
+        Attack,
+    } state = Wander;
 
-struct NaturalMeleeAttack
+    int delay_turns{0};
+};
+
+struct MeleeAttack
 {
     int accuracy;
     Roll damage;
 };
 
-struct RandomWalk
-{
-    int countdown;
-    int delay;
-};
-
 using ECS = ecs::Engine<
-    Position, Health, Visual,
-    Solid, BlockVision, Light,
+    Position, Health, Name, Visual,
+    Solid, Airtight, BlockVision, Light,
     Player,
     Item, Inventory, InInventory,
-    RandomWalk
+    Enemy, MeleeAttack
 >;
 extern ECS engine;

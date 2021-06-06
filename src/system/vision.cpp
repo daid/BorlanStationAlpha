@@ -3,7 +3,7 @@
 #include "map.h"
 
 
-void run_vision_system()
+void VisionSystem::run()
 {
     for(Cell& cell : map) {
         cell.visible = false;

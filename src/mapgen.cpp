@@ -218,9 +218,12 @@ Mapgen::Mapgen()
             }
         }
 
-        engine.create().set(Item{"TestItem"}).set(Visual{'!', HsvColor(0, 100, 100), -1}).set(Position{room.position + room.size / 2});
-        engine.create().set<Solid>().set(Visual{'S', HsvColor(240, 100, 100)}).set(Position{room.position + room.size / 2}).set(RandomWalk{0, 2});
+        engine.create().set<Item>().set(Name{"TestItem"}).set(Visual{'!', HsvColor(0, 100, 100), -1}).set(Position{room.position + room.size / 2});
     }
+
+        engine.create().set<Solid>().set(Visual{'S', HsvColor(240, 100, 100)}).set(Enemy{})
+            .set(Position{start}).set(Health{10, 10})
+            .set(MeleeAttack{3, {"1d3+3"}});
 
 
     for(int y=0; y<data.size().y; y++) {
@@ -230,15 +233,15 @@ Mapgen::Mapgen()
             case Unset: map(x, y).floor = false; break;
             case Vacuum: map(x, y).floor = false; break;
             case Floor: map(x, y).oxygen = 1.0; break;
-            case Wall: engine.create().set<Solid>().set<BlockVision>().set(Position{{x, y}}).set(Visual{'#', {0, 0, 100}}); break;
+            case Wall: engine.create().set<Solid>().set<Airtight>().set<BlockVision>().set(Position{{x, y}}).set(Visual{'#', {0, 0, 100}}); break;
             case ThinWall:
                 if (data(x - 1, y) <= Vacuum || data(x + 1, y) <= Vacuum)
-                    engine.create().set<Solid>().set<BlockVision>().set(Position{{x, y}}).set(Visual{'|', {0, 0, 100}});
+                    engine.create().set<Solid>().set<Airtight>().set<BlockVision>().set(Position{{x, y}}).set(Visual{'|', {0, 0, 100}});
                 else
-                    engine.create().set<Solid>().set<BlockVision>().set(Position{{x, y}}).set(Visual{'-', {0, 0, 100}});
+                    engine.create().set<Solid>().set<Airtight>().set<BlockVision>().set(Position{{x, y}}).set(Visual{'-', {0, 0, 100}});
                 break;
-            case Door: engine.create().set(Position{{x, y}}).set(Visual{'+', {30, 50, 100}}).set<Solid>(); break;
-            case Window: engine.create().set<Solid>().set(Position{{x, y}}).set(Visual{'+', {180, 80, 100}}); break;
+            case Door: engine.create().set(Position{{x, y}}).set(Visual{'+', {30, 50, 100}}); break;
+            case Window: engine.create().set<Solid>().set<Airtight>().set(Position{{x, y}}).set(Visual{'+', {180, 80, 100}}); break;
             }
         }
     }

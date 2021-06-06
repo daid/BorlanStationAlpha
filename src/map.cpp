@@ -32,6 +32,56 @@ void Map::visit_field_of_view(Vector2i center, int radius, const std::function<v
     fov_step(center, {0, -1}, radius, 1, -1.0, 1.0, callback);
 }
 
+float Map::line_of_sight(Vector2i start, Vector2i end)
+{
+    Vector2i delta = end - start;
+    Vector2i i{delta.x > 0 ? 1 : -1, delta.y > 0 ? 1 : -1};
+    delta = {std::abs(delta.x), std::abs(delta.y)};
+    if (delta.x > delta.y) {
+        int open_count = 0;
+        for(int err_start=0; err_start<delta.x; err_start++) {
+            int err = err_start;
+            int y = start.y;
+            bool blocked = false;
+            for(int x=start.x; x != end.x; x+=i.x) {
+                if (vision_blocked({x, y})) {
+                    blocked = true;
+                    break;
+                }
+                err -= delta.y;
+                if (err < 0) {
+                    y += i.y;
+                    err += delta.x;
+                }
+            }
+            if (!blocked)
+                open_count++;
+        }
+        return float(open_count) / float(delta.x);
+    } else {
+        int open_count = 0;
+        for(int err_start=0; err_start<delta.y; err_start++) {
+            int err = err_start;
+            int x = start.x;
+            bool blocked = false;
+            for(int y=start.y; y != end.y; y+=i.y) {
+                if (vision_blocked({x, y})) {
+                    blocked = true;
+                    break;
+                }
+                err -= delta.x;
+                if (err < 0) {
+                    x += i.x;
+                    err += delta.y;
+                }
+            }
+            if (!blocked)
+                open_count++;
+        }
+        return float(open_count) / float(delta.y);
+    }
+}
+
 void Map::fov_step(Vector2i center, Vector2i dir, int radius, int row, float fmin, float fmax, const std::function<void(Vector2i)>& callback)
 {
     if (row >= radius)

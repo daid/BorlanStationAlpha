@@ -36,7 +36,7 @@ void HudView::draw_stats(Frontend& frontend, Vector2i p, Vector2i size)
         p.y++;
         frontend.draw(p.x, p.y++, "Inventory:", fg);
         for(auto item : engine.upgrade(inventory.contents)) {
-            frontend.draw(p.x+1, p.y++, item.get<Item>().name, fg);
+            frontend.draw(p.x+1, p.y++, item.get<Name>(), fg);
         }
 
         p.y++;
@@ -47,7 +47,7 @@ void HudView::draw_stats(Frontend& frontend, Vector2i p, Vector2i size)
                     frontend.draw(p.x, p.y++, "On floor:", fg);
                     first = false;
                 }
-                frontend.draw(p.x+1, p.y++, ce.get<Item>().name, fg);
+                frontend.draw(p.x+1, p.y++, ce.get<Name>(), fg);
             }
         }
     }

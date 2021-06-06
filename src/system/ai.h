@@ -1,4 +1,10 @@
 #pragma once
 
+#include "ecs.h"
 
-void run_ai_system();
+
+class AISystem : public ecs::System<AISystem, 1>
+{
+public:
+    void run();
+};

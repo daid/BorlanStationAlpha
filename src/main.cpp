@@ -18,43 +18,48 @@
 
 
 ECS engine;
+ecs::Systems<
+    AISystem,
+    OxygenSystem,
+    VisionSystem
+> systems;
 
 
-bool action_move(ECS::Entity e, Vector2i offset)
+int action_move(ECS::Entity e, Vector2i offset)
 {
     auto position = e.get<Position>() + offset;
     if (e.has<Solid>() && map.has_solid_entity(position))
         return false;
     e.remove<Position>();
     e.set(Position{position});
-    return true;
+    return 10;
 }
 
-bool action_pick(ECS::Entity e)
+int action_pick(ECS::Entity e)
 {
     for(auto it : map(e.get<Position>()).entities) {
         auto ce = engine.upgrade(it);
         if (ce.has<Item>()) {
             ce.remove<Position>();
             ce.set(InInventory{e});
-            return true;
+            return 5;
         }
     }
-    return false;
+    return 0;
 }
 
-bool action_drop(ECS::Entity from, ECS::Entity target)
+int action_drop(ECS::Entity from, ECS::Entity target)
 {
     target.remove<InInventory>();
     target.set(from.get<Position>());
-    return true;
+    return 5;
 }
 
 std::optional<ECS::Entity> select_from_inventory(Frontend& frontend, Inventory& inv, std::string_view title)
 {
     std::vector<std::string> options;
     for(auto e : engine.upgrade(inv.contents)) {
-        options.push_back(e.get<Item>().name);
+        options.push_back(e.get<Name>());
     }
     if (options.empty()) {
         mlog.add("Got no items.");
@@ -83,42 +88,40 @@ int main(int argc, char** argv)
     MapView map_view;
     HudView hud_view;
 
-    for(int n=0; n<20; n++)
-        mlog.add("This is test message @", n);
-    mlog.add("Test12345");
+    mlog.add("Welcome to Borlan Station Alpha");
 
     while(mlog.has_new_messages())
         mlog.confirm_new_message();
-    run_vision_system();
+    systems.turn();
 
     while(1) {
         View::draw_views(frontend);
 
         auto input = frontend.get_input();
-        bool did_action = false;
-        if (!mlog.has_new_messages())
-        {
+        int execute_turns = 0;
+        if (!mlog.has_new_messages()) {
             switch(input) {
             case INPUT_QUIT: return 0;
-            case INPUT_RIGHT: did_action = action_move(player, Vector2i{1, 0}); break;
-            case INPUT_LEFT: did_action = action_move(player, Vector2i{-1, 0}); break;
-            case INPUT_DOWN: did_action = action_move(player, Vector2i{0, 1}); break;
-            case INPUT_UP: did_action = action_move(player, Vector2i{0, -1}); break;
-            case 'p': did_action = action_pick(player); break;
+            case INPUT_RIGHT: execute_turns = action_move(player, Vector2i{1, 0}); break;
+            case INPUT_LEFT: execute_turns = action_move(player, Vector2i{-1, 0}); break;
+            case INPUT_DOWN: execute_turns = action_move(player, Vector2i{0, 1}); break;
+            case INPUT_UP: execute_turns = action_move(player, Vector2i{0, -1}); break;
+            case 'p': execute_turns = action_pick(player); break;
             case 'd': {
                 auto res = select_from_inventory(frontend, player.get<Inventory>(), "Which item to drop?");
                 if (res.has_value()) {
-                    did_action = action_drop(player, res.value());
+                    execute_turns = action_drop(player, res.value());
                 }
             }break;
+            case '.': execute_turns = 10; break;
             }
             //for(auto e : map(player.get<Position>()).entities) { if (e.has<Solid>() && !e.has<Player>()) e.destroy(); }
         }
 
-        if (did_action) {
-            run_ai_system();
-            run_oxygen_system();
-            run_vision_system();
+        bool did_action = execute_turns > 0;
+        while(execute_turns) {
+            systems.turn();
+            execute_turns--;
         }
         if (did_action || input) {
             while(mlog.has_new_messages() && hud_view.msg_line_count > 0) {
