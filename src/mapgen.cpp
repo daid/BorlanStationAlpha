@@ -2,6 +2,7 @@
 #include "map.h"
 #include "components.h"
 #include "random.h"
+#include "blueprint.h"
 
 
 Mapgen::Mapgen()
@@ -214,16 +215,13 @@ Mapgen::Mapgen()
         for(int y=0; y<light_count.y; y++) {
             for(int x=0; x<light_count.x; x++) {
                 if (x + y * light_count.x != light_off)
-                    engine.create().set(Light{4.0f, HsvColor(irandom(0, 360), 0, 100)}).set(Position{offset + Vector2i{spacing.x * x, spacing.y * y}});
+                    engine.create().set(Light{4.0f, HsvColor(0, 0, 100)}).set(Position{offset + Vector2i{spacing.x * x, spacing.y * y}});
             }
         }
 
-        engine.create().set<Item>().set(Name{"TestItem"}).set(Visual{'!', HsvColor(0, 100, 100), -1}).set(Position{room.position + room.size / 2});
+        create_blueprint("Knife").set(Position{room.position + room.size / 2});
     }
-
-        engine.create().set<Solid>().set(Visual{'d', HsvColor(240, 100, 100)}).set(Enemy{}).set(Name{"Spider droid"})
-            .set(Position{start}).set(Health{10, 10})
-            .set(MeleeAttack{3, {"1d3+3"}});
+    create_blueprint("SpiderDroid").set(Position{start});
 
 
     for(int y=0; y<data.size().y; y++) {
@@ -233,15 +231,15 @@ Mapgen::Mapgen()
             case Unset: map(x, y).floor = false; break;
             case Vacuum: map(x, y).floor = false; break;
             case Floor: map(x, y).oxygen = 1.0; break;
-            case Wall: engine.create().set<Solid>().set<Airtight>().set<BlockVision>().set(Position{{x, y}}).set(Visual{'#', {0, 0, 100}}); break;
+            case Wall: create_blueprint("Wall").set(Position{{x, y}}); break;
             case ThinWall:
                 if (data(x - 1, y) <= Vacuum || data(x + 1, y) <= Vacuum)
-                    engine.create().set<Solid>().set<Airtight>().set<BlockVision>().set(Position{{x, y}}).set(Visual{'|', {0, 0, 100}});
+                    create_blueprint("ThinWall").set(Position{{x, y}}).get<Visual>().c = '|';
                 else
-                    engine.create().set<Solid>().set<Airtight>().set<BlockVision>().set(Position{{x, y}}).set(Visual{'-', {0, 0, 100}});
+                    create_blueprint("ThinWall").set(Position{{x, y}}).get<Visual>().c = '-';
                 break;
-            case Door: engine.create().set(Position{{x, y}}).set(Visual{'+', {30, 50, 100}}); break;
-            case Window: engine.create().set<Solid>().set<Airtight>().set(Position{{x, y}}).set(Visual{'+', {180, 80, 100}}); break;
+            case Door: create_blueprint("Door").set(Position{{x, y}}); break;
+            case Window: create_blueprint("Window").set(Position{{x, y}}); break;
             }
         }
     }

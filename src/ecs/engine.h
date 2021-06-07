@@ -31,6 +31,13 @@ public:
         return Entity(next_id++, this);
     }
 
+    Entity copy(const EntityBase& e)
+    {
+        Entity result = create();
+        (std::get<ecs::detail::Storage<CL>>(storage).copy(e.id, result.id), ...);
+        return result;
+    }
+
     Entity upgrade(EntityBase e)
     {
         return Entity(e.id, this);

@@ -29,8 +29,15 @@ ecs::Systems<
 int action_move(ECS::Entity e, Vector2i offset)
 {
     auto position = e.get<Position>() + offset;
-    if (e.has<Solid>() && map.has_solid_entity(position))
-        return false;
+    if (e.has<Solid>() && map.has_solid_entity(position)) {
+        for(auto ce : map(position).entities) {
+            if (ce.has<Door>()) {
+                ce.destroy();
+                return 5;
+            }
+        }
+        return 0;
+    }
     e.remove<Position>();
     e.set(Position{position});
     return 10;
@@ -77,6 +84,8 @@ std::optional<ECS::Entity> select_from_inventory(Frontend& frontend, Inventory& 
 
 int main(int argc, char** argv)
 {
+    load_blueprints();
+
     Mapgen mg;
 
     auto player = engine.create();
@@ -88,8 +97,6 @@ int main(int argc, char** argv)
     Frontend frontend;
     MapView map_view;
     HudView hud_view;
-
-    load_blueprints();
 
     mlog.add("Welcome to Borlan Station Alpha");
 

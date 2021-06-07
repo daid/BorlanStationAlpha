@@ -1,10 +1,18 @@
 #include "blueprint.h"
 #include "components.h"
+#include "serialize.h"
+
+
+static std::unordered_map<std::string, ecs::EntityBase> blueprints;
 
 
 static void load_blueprints_from(const char* filename)
 {
     FILE* f = fopen(filename, "rb");
+    if (!f) {
+        fprintf(stderr, "Failed to open %s\n", filename);
+        return;
+    }
     std::string contents;
     size_t size;
     do {
@@ -44,12 +52,12 @@ static void load_blueprints_from(const char* filename)
         if (!expect('{')) break;
 
         auto blueprint = engine.create();
-
+        blueprints[std::string(blueprint_name)] = blueprint;
         while(true) {
             auto component_key = read_string();
             if (!expect('{')) break;
-            std::vector<std::string_view> args;
-            std::unordered_map<std::string_view, std::string_view> kwargs;
+            SerializationInfo info;
+            info.full_string = input_data;
             while(true) {
                 if (input_data[0] == '}') {
                     break;
@@ -58,16 +66,21 @@ static void load_blueprints_from(const char* filename)
                 if (input_data[0] == '{') {
                     auto n = input_data.find('}');
                     auto value = input_data.substr(1, n - 1);
-                    kwargs[data_key] = value;
+                    info.kwargs[data_key] = value;
                     input_data = input_data.substr(n + 1);
                     skip_whitespace();
                 } else {
-                    args.push_back(data_key);
+                    info.args.push_back(data_key);
                 }
             }
+            info.full_string = info.full_string.substr(0, input_data.data() - info.full_string.data());
+            while(info.full_string.find_last_of(" \n\r\t") == info.full_string.size() - 1)
+                info.full_string.remove_suffix(1);
             if (!expect('}')) break;
 
-            //TODO: Create component with parameters
+            if (!deserialize_component(blueprint, component_key, info)) {
+                fprintf(stderr, "Failed to create blueprint component: %s.%s\n", std::string(blueprint_name).c_str(), std::string(component_key).c_str());
+            }
         }
         if (!expect('}')) break;
     }
@@ -78,4 +91,16 @@ static void load_blueprints_from(const char* filename)
 void load_blueprints()
 {
     load_blueprints_from("resource/items.txt");
+    load_blueprints_from("resource/enemies.txt");
+    load_blueprints_from("resource/various.txt");
+}
+
+ECS::Entity create_blueprint(const std::string& name)
+{
+    auto it = blueprints.find(name);
+    if (it == blueprints.end()) {
+        fprintf(stderr, "Failed to find blueprint: %s\n", name.c_str());
+        return engine.create();
+    }
+    return engine.copy(it->second);
 }

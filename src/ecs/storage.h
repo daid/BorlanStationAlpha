@@ -49,6 +49,11 @@ public:
             data.erase(it);
         }
     }
+
+    void copy(IdType source, IdType target)
+    {
+        if (has(source)) set(target, get(source));
+    }
 };
 
 template<typename T>
@@ -57,7 +62,8 @@ public:
     using StorageType = std::unordered_set<IdType>;
     StorageType data;
 
-    bool has(IdType id) const {
+    bool has(IdType id) const
+    {
         return data.find(id) != data.end();
     }
 
@@ -72,6 +78,11 @@ public:
         if (it != data.end()) {
             data.erase(it);
         }
+    }
+
+    void copy(IdType source, IdType target)
+    {
+        if (has(source)) set(target);
     }
 };
 

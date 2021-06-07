@@ -25,6 +25,7 @@ struct Position : public Vector2i
 struct Solid {};
 struct Airtight{};
 struct BlockVision{};
+struct Door{};
 struct Light
 {
     float distance;
@@ -71,7 +72,7 @@ struct MeleeAttack
 
 using ECS = ecs::Engine<
     Position, Health, Name, Visual,
-    Solid, Airtight, BlockVision, Light,
+    Solid, Airtight, BlockVision, Light, Door,
     Player,
     Item, Inventory, InInventory,
     Enemy, MeleeAttack

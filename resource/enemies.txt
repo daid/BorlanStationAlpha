@@ -1,0 +1,11 @@
+SpiderDroid {
+    Name{Spider Droid}
+    Health{10 10}
+    Enemy{}
+    Solid{}
+    MeleeAttack{
+        accuracy{3}
+        damage{1d3+3}
+    }
+    Visual{d color{240 100 100}}
+}
