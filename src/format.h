@@ -16,7 +16,7 @@ static inline std::string format_to_string(const std::string& s)
 
 static inline std::string format_to_string(char c)
 {
-    return std::string{{c}};
+    return std::string{c};
 }
 
 static inline std::string format_to_string(int i)
