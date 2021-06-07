@@ -7,6 +7,7 @@
 #include "mapgen.h"
 #include "components.h"
 #include "messagelog.h"
+#include "blueprint.h"
 
 #include "system/vision.h"
 #include "system/oxygen.h"
@@ -87,6 +88,8 @@ int main(int argc, char** argv)
     Frontend frontend;
     MapView map_view;
     HudView hud_view;
+
+    load_blueprints();
 
     mlog.add("Welcome to Borlan Station Alpha");
 

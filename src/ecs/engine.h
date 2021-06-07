@@ -23,6 +23,7 @@ template<typename... CL> class Engine
 {
 public:
     using Entity = ecs::Entity<CL...>;
+    using ComponentsTuple = std::tuple<CL...>;
 
     Entity create()
     {

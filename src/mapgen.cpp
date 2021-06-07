@@ -221,7 +221,7 @@ Mapgen::Mapgen()
         engine.create().set<Item>().set(Name{"TestItem"}).set(Visual{'!', HsvColor(0, 100, 100), -1}).set(Position{room.position + room.size / 2});
     }
 
-        engine.create().set<Solid>().set(Visual{'S', HsvColor(240, 100, 100)}).set(Enemy{})
+        engine.create().set<Solid>().set(Visual{'d', HsvColor(240, 100, 100)}).set(Enemy{}).set(Name{"Spider droid"})
             .set(Position{start}).set(Health{10, 10})
             .set(MeleeAttack{3, {"1d3+3"}});
 

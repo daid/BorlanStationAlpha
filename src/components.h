@@ -24,15 +24,14 @@ struct Position : public Vector2i
 
 struct Solid {};
 struct Airtight{};
-struct BlockVision {};
-struct Light {
+struct BlockVision{};
+struct Light
+{
     float distance;
     Color color{1,1,1};
 };
 
-struct Player
-{
-};
+struct Player {};
 
 struct Visual
 {
