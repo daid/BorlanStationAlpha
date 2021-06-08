@@ -31,7 +31,16 @@ void HudView::draw_stats(Frontend& frontend, Vector2i p, Vector2i size)
 {
     for(auto&& [e, position, health, inventory] : engine.query<Player, Position, Health, Inventory>()) {
         frontend.draw(p.x, p.y++, format("HP: @/@", health.current, health.max), fg);
-        frontend.draw(p.x, p.y++, format("O2: @", int(map(position).oxygen * 100)), fg);
+        if (e.has<Organic>()) {
+            float o2 = map(position).oxygen;
+            frontend.draw(p.x, p.y, "O2: ", fg);
+            HsvColor c{240, 50, 100};
+            if (o2 < 0.5)
+                c.hue = 0;
+            for(int n=0; n<8; n++)
+                frontend.draw(p.x+4+n, p.y, o2 * 10.0 > n ? '#' : '-', c);
+            p.y++;
+        }
 
         p.y++;
         frontend.draw(p.x, p.y++, "Inventory:", fg);

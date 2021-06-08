@@ -71,11 +71,22 @@ struct MeleeAttack
     Roll damage;
 };
 
+struct DamageReduction {
+    int amount;
+};
+
+struct Organic {
+    float oxygen_usage;
+
+    int suffocate_count{0};
+};
+
 using ECS = ecs::Engine<
     Position, Health, Name, Visual,
     Solid, Airtight, BlockVision, Light, Door, OpenDoor,
     Player,
     Item, Inventory, InInventory,
-    Enemy, MeleeAttack
+    Enemy, MeleeAttack, DamageReduction,
+    Organic
 >;
 extern ECS engine;

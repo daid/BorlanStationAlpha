@@ -25,6 +25,7 @@ bool DoorSystem::open(ECS::Entity door)
     door.set<OpenDoor>();
     door.remove<Solid>();
     door.remove<BlockVision>();
+    door.remove<Airtight>();
     return true;
 }
 
@@ -35,5 +36,6 @@ bool DoorSystem::close(ECS::Entity door)
     door.remove<OpenDoor>();
     door.set<Solid>();
     door.set<BlockVision>();
+    door.set<Airtight>();
     return true;
 }

@@ -50,6 +50,9 @@ REGISTER(Visual) {
 REGISTER(MeleeAttack) {
     entity.set(MeleeAttack{info.num(0, "accuracy", 0), info.str(1, "damage", "0")});
 }
+REGISTER(DamageReduction) {
+    entity.set(DamageReduction{info.num(0, "amount", 0)});
+}
 
 //==========================================================================================
 //==========================================================================================

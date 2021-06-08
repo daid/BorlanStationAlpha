@@ -13,6 +13,7 @@
 #include "system/oxygen.h"
 #include "system/ai.h"
 #include "system/door.h"
+#include "system/health.h"
 
 #include "view/map.h"
 #include "view/hud.h"
@@ -25,6 +26,7 @@ ecs::Systems<
     AISystem,
     DoorSystem,
     OxygenSystem,
+    HealthSystem,
     VisionSystem
 > systems;
 
@@ -56,7 +58,7 @@ int main(int argc, char** argv)
 
     auto player = engine.create();
     player.set(Position{mg.start}).set(Visual{'@', HsvColor(0, 0, 100), 10}).set<Player>().set(Inventory{});
-    player.set(Health{20, 40});
+    player.set(Health{20, 40}).set(Organic{0.02});
     player.set<Solid>();
     player.set(Light{10, HsvColor(0, 0, 50)});
 
@@ -74,10 +76,10 @@ int main(int argc, char** argv)
         View::draw_views(frontend);
 
         auto input = frontend.get_input();
+        if (input == INPUT_QUIT) return 0;
         int execute_turns = 0;
-        if (!mlog.has_new_messages()) {
+        if (!mlog.has_new_messages() && player.has<Position>()) {
             switch(input) {
-            case INPUT_QUIT: return 0;
             case INPUT_RIGHT: execute_turns = action_move(player, Vector2i{1, 0}); break;
             case INPUT_LEFT: execute_turns = action_move(player, Vector2i{-1, 0}); break;
             case INPUT_DOWN: execute_turns = action_move(player, Vector2i{0, 1}); break;

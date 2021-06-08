@@ -1,12 +1,27 @@
 #include "oxygen.h"
 #include "components.h"
 #include "map.h"
+#include "messagelog.h"
+
 
 static const std::array<Vector2i, 8> DIRECTIONS = {{{-1,-1},{-1,0},{-1,1}, {0,-1},{0,1}, {1,-1},{1,0},{1,1}}};
 
 
 void OxygenSystem::run()
 {
+    for(auto&& [e, organic, position] : engine.query<Organic, Position>()) {
+        if (map(position).oxygen > organic.oxygen_usage * 5.0f) {
+            map(position).oxygen -= organic.oxygen_usage;
+            organic.suffocate_count = 0;
+        } else {
+            if (e.has<Player>())
+                mlog.add("You cannot breathe!");
+            if (e.has<Health>())
+                e.get<Health>().current -= 5 * (organic.suffocate_count / 4);
+            organic.suffocate_count++;
+        }
+    }
+
     airtight.resize(map.size(), 0);
     for(auto&& [e, position] : engine.query<Airtight, Position>()) {
         airtight(position) = 1;

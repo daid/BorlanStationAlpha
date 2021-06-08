@@ -47,6 +47,10 @@ uint32_t Frontend::get_input()
             else if (event.key.keysym.sym == SDLK_KP_4 && !(event.key.keysym.mod & KMOD_NUM)) return INPUT_LEFT;
             else if (event.key.keysym.sym == SDLK_KP_2 && !(event.key.keysym.mod & KMOD_NUM)) return INPUT_DOWN;
             else if (event.key.keysym.sym == SDLK_KP_8 && !(event.key.keysym.mod & KMOD_NUM)) return INPUT_UP;
+            else if (event.key.keysym.sym == SDLK_KP_1 && !(event.key.keysym.mod & KMOD_NUM)) return INPUT_DOWN_LEFT;
+            else if (event.key.keysym.sym == SDLK_KP_7 && !(event.key.keysym.mod & KMOD_NUM)) return INPUT_UP_LEFT;
+            else if (event.key.keysym.sym == SDLK_KP_3 && !(event.key.keysym.mod & KMOD_NUM)) return INPUT_DOWN_RIGHT;
+            else if (event.key.keysym.sym == SDLK_KP_9 && !(event.key.keysym.mod & KMOD_NUM)) return INPUT_UP_RIGHT;
             else if (event.key.keysym.sym == SDLK_RETURN || event.key.keysym.sym == SDLK_KP_ENTER) return '\r';
             else if (event.key.keysym.sym == SDLK_ESCAPE) return INPUT_CANCEL;
         } else if (event.type == SDL_QUIT) {
