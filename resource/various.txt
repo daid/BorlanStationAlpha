@@ -1,5 +1,5 @@
 Door {
-    Solid{} Door{}
+    Solid{} Door{} BlockVision{}
     Visual{+ color{40 100 80}}
 }
 Window {

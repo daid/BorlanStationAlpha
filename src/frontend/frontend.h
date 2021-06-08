@@ -8,11 +8,16 @@
 #include "array2.h"
 #include "color.h"
 
-#define INPUT_QUIT   0xF0000000
-#define INPUT_RIGHT  0x10000001
-#define INPUT_LEFT   0x10000002
-#define INPUT_DOWN   0x10000003
-#define INPUT_UP     0x10000004
+#define INPUT_QUIT        0xF0000000
+#define INPUT_RIGHT       0x10000001
+#define INPUT_LEFT        0x10000002
+#define INPUT_DOWN        0x10000003
+#define INPUT_UP          0x10000004
+#define INPUT_DOWN_LEFT   0x10000005
+#define INPUT_UP_LEFT     0x10000006
+#define INPUT_DOWN_RIGHT  0x10000007
+#define INPUT_UP_RIGHT    0x10000008
+
 #define INPUT_CANCEL 0x10000010
 
 class Frontend

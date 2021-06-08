@@ -34,7 +34,10 @@ public:
     Entity copy(const EntityBase& e)
     {
         Entity result = create();
-        (std::get<ecs::detail::Storage<CL>>(storage).copy(e.id, result.id), ...);
+        if (query_depth)
+            (std::get<ecs::detail::Storage<CL>>(storage).prepare_copy(e.id, result.id), ...);
+        else
+            (std::get<ecs::detail::Storage<CL>>(storage).copy(e.id, result.id), ...);
         return result;
     }
 
@@ -134,6 +137,7 @@ public:
         };
 
         Query(Engine* _engine) : engine(_engine) {}
+        ~Query() { engine->query_done(); }
         
         Iterator begin() const { return {std::get<ecs::detail::Storage<T>>(engine->storage).data.begin(), engine}; }
         Iterator end() const { return {std::get<ecs::detail::Storage<T>>(engine->storage).data.end(), engine}; }
@@ -142,30 +146,61 @@ public:
     };
 
     template<typename T>
-    bool has(const ecs::EntityBase& e) const {  return std::get<ecs::detail::Storage<T>>(storage).has(e.id); }
+    bool has(const ecs::EntityBase& e) const { return std::get<ecs::detail::Storage<T>>(storage).has(e.id); }
     
     template<typename T, typename = std::enable_if_t<!std::is_empty_v<T>>>
     T& get(const ecs::EntityBase& e) { return std::get<ecs::detail::Storage<T>>(storage).get(e.id); }
 
     template<typename T, typename = std::enable_if_t<!std::is_empty_v<T>>>
-    void set(const ecs::EntityBase& e, const T& value) { std::get<ecs::detail::Storage<T>>(storage).set(e.id, value); }
+    void set(const ecs::EntityBase& e, const T& value)
+    {
+        if (query_depth)
+            std::get<ecs::detail::Storage<T>>(storage).prepare_set(e.id, value);
+        else
+            std::get<ecs::detail::Storage<T>>(storage).set(e.id, value);
+    }
 
     template<typename T, typename = std::enable_if_t<std::is_empty_v<T>>>
-    void set(const ecs::EntityBase& e) { std::get<ecs::detail::Storage<T>>(storage).set(e.id); }
+    void set(const ecs::EntityBase& e)
+    {
+        if (query_depth)
+            std::get<ecs::detail::Storage<T>>(storage).prepare_set(e.id);
+        else
+            std::get<ecs::detail::Storage<T>>(storage).set(e.id);
+    }
     
     template<typename T>
-    void remove(const ecs::EntityBase& e) { std::get<ecs::detail::Storage<T>>(storage).remove(e.id); }
+    void remove(const ecs::EntityBase& e)
+    {
+        if (query_depth)
+            std::get<ecs::detail::Storage<T>>(storage).prepare_remove(e.id);
+        else
+            std::get<ecs::detail::Storage<T>>(storage).remove(e.id);
+    }
     
     void destroy(ecs::EntityBase& e)
     {
-        (std::get<ecs::detail::Storage<CL>>(storage).remove(e.id), ...);
+        if (query_depth)
+            (std::get<ecs::detail::Storage<CL>>(storage).prepare_remove(e.id), ...);
+        else
+            (std::get<ecs::detail::Storage<CL>>(storage).remove(e.id), ...);
     }
 
-    template<typename... ARGS> Query<ARGS...> query() { return Query<ARGS...>(this); }
+    template<typename... ARGS> Query<ARGS...> query() { query_depth++; return Query<ARGS...>(this); }
 private:
+    void query_done()
+    {
+        assert(query_depth > 0);
+        query_depth--;
+        if (query_depth == 0) {
+            (std::get<ecs::detail::Storage<CL>>(storage).commit(), ...);
+        }
+    }
+
     using IdType = ecs::detail::IdType;
 
     IdType next_id{};
+    size_t query_depth{0};
     std::tuple<ecs::detail::Storage<CL>...> storage;
 };
 

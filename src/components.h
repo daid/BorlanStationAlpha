@@ -26,6 +26,7 @@ struct Solid {};
 struct Airtight{};
 struct BlockVision{};
 struct Door{};
+struct OpenDoor{};
 struct Light
 {
     float distance;
@@ -72,7 +73,7 @@ struct MeleeAttack
 
 using ECS = ecs::Engine<
     Position, Health, Name, Visual,
-    Solid, Airtight, BlockVision, Light, Door,
+    Solid, Airtight, BlockVision, Light, Door, OpenDoor,
     Player,
     Item, Inventory, InInventory,
     Enemy, MeleeAttack

@@ -12,56 +12,22 @@
 #include "system/vision.h"
 #include "system/oxygen.h"
 #include "system/ai.h"
+#include "system/door.h"
 
 #include "view/map.h"
 #include "view/hud.h"
 #include "view/menu.h"
 
+#include "action/move.h"
 
 ECS engine;
 ecs::Systems<
     AISystem,
+    DoorSystem,
     OxygenSystem,
     VisionSystem
 > systems;
 
-
-int action_move(ECS::Entity e, Vector2i offset)
-{
-    auto position = e.get<Position>() + offset;
-    if (e.has<Solid>() && map.has_solid_entity(position)) {
-        for(auto ce : map(position).entities) {
-            if (ce.has<Door>()) {
-                ce.destroy();
-                return 5;
-            }
-        }
-        return 0;
-    }
-    e.remove<Position>();
-    e.set(Position{position});
-    return 10;
-}
-
-int action_pick(ECS::Entity e)
-{
-    for(auto it : map(e.get<Position>()).entities) {
-        auto ce = engine.upgrade(it);
-        if (ce.has<Item>()) {
-            ce.remove<Position>();
-            ce.set(InInventory{e});
-            return 5;
-        }
-    }
-    return 0;
-}
-
-int action_drop(ECS::Entity from, ECS::Entity target)
-{
-    target.remove<InInventory>();
-    target.set(from.get<Position>());
-    return 5;
-}
 
 std::optional<ECS::Entity> select_from_inventory(Frontend& frontend, Inventory& inv, std::string_view title)
 {
@@ -116,7 +82,11 @@ int main(int argc, char** argv)
             case INPUT_LEFT: execute_turns = action_move(player, Vector2i{-1, 0}); break;
             case INPUT_DOWN: execute_turns = action_move(player, Vector2i{0, 1}); break;
             case INPUT_UP: execute_turns = action_move(player, Vector2i{0, -1}); break;
-            case 'p': execute_turns = action_pick(player); break;
+            case INPUT_DOWN_LEFT: execute_turns = action_move(player, Vector2i{-1, 1}); break;
+            case INPUT_UP_LEFT: execute_turns = action_move(player, Vector2i{-1, -1}); break;
+            case INPUT_DOWN_RIGHT: execute_turns = action_move(player, Vector2i{1, 1}); break;
+            case INPUT_UP_RIGHT: execute_turns = action_move(player, Vector2i{1, -1}); break;
+            case 'p': execute_turns = action_pickup(player); break;
             case 'd': {
                 auto res = select_from_inventory(frontend, player.get<Inventory>(), "Which item to drop?");
                 if (res.has_value()) {

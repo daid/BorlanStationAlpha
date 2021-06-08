@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -136,14 +137,18 @@ uint32_t Frontend::get_input()
                 char buf[16]{0};
                 auto size = read(STDIN_FILENO, &buf, sizeof(buf));
 
-                if (buf[0] == '[' && buf[1] == 'A') return INPUT_UP;
-                if (buf[0] == '[' && buf[1] == 'B') return INPUT_DOWN;
-                if (buf[0] == '[' && buf[1] == 'C') return INPUT_RIGHT;
-                if (buf[0] == '[' && buf[1] == 'D') return INPUT_LEFT;
+                if (strcmp(buf, "[A") == 0) return INPUT_UP;
+                if (strcmp(buf, "[B") == 0) return INPUT_DOWN;
+                if (strcmp(buf, "[C") == 0) return INPUT_RIGHT;
+                if (strcmp(buf, "[D") == 0) return INPUT_LEFT;
+                if (strcmp(buf, "[H") == 0) return INPUT_UP_LEFT;
+                if (strcmp(buf, "[F") == 0) return INPUT_DOWN_LEFT;
+                if (strcmp(buf, "[5~") == 0) return INPUT_UP_RIGHT;
+                if (strcmp(buf, "[6~") == 0) return INPUT_DOWN_RIGHT;
 
                 printf("\x1B[0mESC ");
                 for(int n=0; n<size; n++)
-                    printf("%d ", buf[n]);
+                    printf("%d (%c) ", buf[n], buf[n]);
                 fflush(stdout);
             } else {
                 return INPUT_CANCEL; //Escape key.
