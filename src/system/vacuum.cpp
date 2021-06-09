@@ -6,15 +6,15 @@
 void VacuumSystem::run()
 {
     for(auto&& [e, floating, position] : engine.query<VacuumFloating, Position>()) {
-        if (map.has_solid_entity(position + Vector2i{-1, 0})
-            || map.has_solid_entity(position + Vector2i{1, 0})
-            || map.has_solid_entity(position + Vector2i{0, -1})
-            || map.has_solid_entity(position + Vector2i{0, 1})) {
+        if (map.has_entity_with<Airtight>(position + Vector2i{-1, 0})
+            || map.has_entity_with<Airtight>(position + Vector2i{1, 0})
+            || map.has_entity_with<Airtight>(position + Vector2i{0,-1})
+            || map.has_entity_with<Airtight>(position + Vector2i{0, 1})) {
             e.remove<VacuumFloating>();
         } else if (floating.delay) {
             floating.delay--;
         } else {
-            if (map.has_solid_entity(position + floating)) {
+            if (map.has_entity_with<Solid>(position + floating)) {
                 e.remove<VacuumFloating>();
             } else {
                 e.remove<Position>();

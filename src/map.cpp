@@ -3,25 +3,6 @@
 
 Map map;
 
-bool Map::has_solid_entity(Vector2i position)
-{
-    if (position.x < 0 || position.y < 0 || position.x >= size().x || position.y >= size().y)
-        return true;
-    for(auto e : map(position).entities)
-        if (e.has<Solid>())
-            return true;
-    return false;
-}
-
-bool Map::vision_blocked(Vector2i position)
-{
-    if (position.x < 0 || position.y < 0 || position.x >= size().x || position.y >= size().y)
-        return true;
-    for(auto e : map(position).entities)
-        if (e.has<BlockVision>())
-            return true;
-    return false;
-}
 
 void Map::visit_field_of_view(Vector2i center, int radius, const std::function<void(Vector2i)>& callback)
 {
@@ -44,7 +25,7 @@ float Map::line_of_sight(Vector2i start, Vector2i end)
             int y = start.y;
             bool blocked = false;
             for(int x=start.x; x != end.x; x+=i.x) {
-                if (vision_blocked({x, y})) {
+                if (has_entity_with<BlockVision>({x, y})) {
                     blocked = true;
                     break;
                 }
@@ -65,7 +46,7 @@ float Map::line_of_sight(Vector2i start, Vector2i end)
             int x = start.x;
             bool blocked = false;
             for(int y=start.y; y != end.y; y+=i.y) {
-                if (vision_blocked({x, y})) {
+                if (has_entity_with<BlockVision>({x, y})) {
                     blocked = true;
                     break;
                 }
@@ -84,7 +65,7 @@ float Map::line_of_sight(Vector2i start, Vector2i end)
 
 void Map::fov_step(Vector2i center, Vector2i dir, int radius, int row, float fmin, float fmax, const std::function<void(Vector2i)>& callback)
 {
-    if (row >= radius)
+    if (row > radius)
         return;
     if (fmax - fmin < 0.001)
         return;
@@ -103,7 +84,7 @@ void Map::fov_step(Vector2i center, Vector2i dir, int radius, int row, float fmi
             continue;
 
         callback(p);
-        if (vision_blocked(p)) {
+        if (has_entity_with<BlockVision>(p)) {
             fov_step(center, dir, radius, row + 1, fmin, start, callback);
             fmin = end;
         }

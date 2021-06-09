@@ -93,6 +93,12 @@ int main(int argc, char** argv)
                     execute_turns = action_drop(player, res.value());
                 }
             }break;
+            case 'e': {
+                auto res = select_from_inventory(frontend, player.get<Inventory>(), "Which item to equip?");
+                if (res.has_value()) {
+                    execute_turns = action_equip(player, res.value());
+                }
+            }break;
             case '.': execute_turns = 10; break;
             }
             //for(auto e : map(player.get<Position>()).entities) { if (e.has<Solid>() && !e.has<Player>()) e.destroy(); }

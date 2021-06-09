@@ -45,7 +45,10 @@ struct Visual
     int priority{0};
 };
 
-struct Item {};
+struct Item {}; //Entity can be picked up and carried around in inventory
+struct Suit {}; //Entity can be equiped as a suit/armor
+struct Wearing : public ecs::EntityBase {}; // Which entity is equiped as a suit
+struct WornBy : public ecs::EntityBase {}; // We are equiped by a specific entity
 
 struct Inventory
 {
@@ -89,7 +92,8 @@ using ECS = ecs::Engine<
     Health, Name, Visual,
     Solid, Airtight, BlockVision, Light, Door, OpenDoor,
     Player,
-    Item, Inventory, InInventory,
+    Item, Suit, Wearing, WornBy,
+    Inventory, InInventory,
     Enemy, MeleeAttack, DamageReduction,
     Organic
 >;

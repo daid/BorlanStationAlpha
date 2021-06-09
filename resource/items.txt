@@ -2,8 +2,24 @@ Knife {
     Name{Knife}
     Item{}
     MeleeAttack{
-        accuracy{0}
-        damage{1d3+2}
+        accuracy{1}
+        damage{2d5}
     }
     Visual{/ color{0 0 100} priority{-1}}
+}
+VacuumSuit {
+    Name{Vacuum Suit}
+    Item{}
+    Suit{}
+    Health{50 50}
+    DamageReduction{1}
+    Visual{[ color{0 0 100} priority{-1}}
+}
+BodyArmor {
+    Name{Body Armor}
+    Item{}
+    Suit{}
+    Health{100 100}
+    DamageReduction{3}
+    Visual{[ color{120 70 100} priority{-1}}
 }

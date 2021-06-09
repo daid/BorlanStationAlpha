@@ -1,16 +1,22 @@
 Door {
-    Solid{} Door{} BlockVision{}
+    Solid{} Door{} BlockVision{} Airtight{}
     Visual{+ color{40 100 80}}
 }
 Window {
     Solid{} Airtight{}
     Visual{+ color{180 80 100}}
+    Health{10 10}
+    DamageReduction{2}
 }
 Wall {
     Solid{} Airtight{} BlockVision{}
     Visual{# color{0 0 100}}
+    Health{20 20}
+    DamageReduction{10}
 }
 ThinWall {
     Solid{} Airtight{} BlockVision{}
     Visual{| color{0 0 100}}
+    Health{15 15}
+    DamageReduction{10}
 }

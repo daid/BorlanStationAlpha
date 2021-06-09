@@ -221,7 +221,8 @@ Mapgen::Mapgen()
 
         create_blueprint("Knife").set(Position{room.position + room.size / 2});
     }
-    create_blueprint("SpiderDroid").set(Position{start});
+    create_blueprint("VacuumSuit").set(Position{start});
+    create_blueprint("BodyArmor").set(Position{start});
 
 
     for(int y=0; y<data.size().y; y++) {

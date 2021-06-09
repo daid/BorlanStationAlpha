@@ -34,6 +34,7 @@ REGISTER(Name) {
     entity.set(Name{std::string(info.full_string)});
 }
 REGISTER_TAG(Item)
+REGISTER_TAG(Suit)
 REGISTER_TAG(Solid)
 REGISTER_TAG(Airtight)
 REGISTER_TAG(BlockVision)
@@ -43,13 +44,13 @@ REGISTER(Inventory) {
     entity.set(Inventory{});
 }
 REGISTER(Organic) {
-    entity.set(Organic{info.num(0, "oxygen_usage", 0.02)});
+    entity.set(Organic{info.flt(0, "oxygen_usage", 0.02)});
 }
 REGISTER(Enemy) {
     entity.set(Enemy{});
 }
 REGISTER(Light) {
-    entity.set(Light{info.num(0, "distance", 1), info.color(1, "color")});
+    entity.set(Light{info.flt(0, "distance", 1), info.color(1, "color")});
 }
 REGISTER(Visual) {
     entity.set(Visual{info.chr(0, "c", '?'), info.color(1, "color"), info.num(2, "priority", 0)});
@@ -79,6 +80,19 @@ bool deserialize_component(ECS::Entity entity, const std::string_view component,
 }
 
 int SerializationInfo::num(size_t index, std::string_view key, int def) const
+{
+    std::string_view s;
+    if (kwargs.find(key) != kwargs.end()) s = kwargs.find(key)->second;
+    if (args.size() > index) s = args[index];
+    if (!s.empty()) {
+        int result = def;
+        std::from_chars(s.data(), s.data() + s.size(), result);
+        return result;
+    }
+    return def;
+}
+
+float SerializationInfo::flt(size_t index, std::string_view key, float def) const
 {
     std::string_view s;
     if (kwargs.find(key) != kwargs.end()) s = kwargs.find(key)->second;

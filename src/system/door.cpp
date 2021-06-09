@@ -9,11 +9,13 @@ void DoorSystem::run()
         bool can_close = true;
         map.visit_field_of_view(position, 2, [&can_close](Vector2i p) {
             for(auto ce : map(p).entities) {
-                if (ce.has<Player>() || ce.has<Enemy>())
+                if (ce.has<Player>() || ce.has<Enemy>()) {
                     can_close = false;
+                    break;
+                }
             }
         });
-        if (can_close)
+        if (can_close && !map.has_entity_with<Solid>(position))
             close(e);
     }
 }

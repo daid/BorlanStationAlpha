@@ -9,8 +9,15 @@
 class Map : public Array2<Cell>
 {
 public:
-    bool has_solid_entity(Vector2i position);
-    bool vision_blocked(Vector2i position);
+    template<typename T>
+    bool has_entity_with(Vector2i position) {
+        if (position.x < 0 || position.y < 0 || position.x >= size().x || position.y >= size().y)
+            return false;
+        for(auto e : (*this)(position).entities)
+            if (e.has<T>())
+                return true;
+        return false;
+    }
 
     using FovCallbackT = std::function<void(Vector2i)>;
     void visit_field_of_view(Vector2i center, int radius, const FovCallbackT& callback);
