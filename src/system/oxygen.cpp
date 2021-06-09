@@ -2,7 +2,7 @@
 #include "components.h"
 #include "map.h"
 #include "messagelog.h"
-
+#include "health.h"
 
 static const std::array<Vector2i, 8> DIRECTIONS = {{{-1,-1},{-1,0},{-1,1}, {0,-1},{0,1}, {1,-1},{1,0},{1,1}}};
 
@@ -16,8 +16,9 @@ void OxygenSystem::run()
         } else {
             if (e.has<Player>())
                 mlog.add("You cannot breathe!");
-            if (e.has<Health>())
-                e.get<Health>().current -= 5 * (organic.suffocate_count / 4);
+            
+            if (organic.suffocate_count > 3)
+                HealthSystem::takeDamage(e, DamageType::Suffocate, 5 * (organic.suffocate_count / 4));
             organic.suffocate_count++;
         }
     }

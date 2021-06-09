@@ -93,6 +93,7 @@ void load_blueprints()
     load_blueprints_from("resource/items.txt");
     load_blueprints_from("resource/enemies.txt");
     load_blueprints_from("resource/various.txt");
+    load_blueprints_from("resource/player.txt");
 }
 
 ECS::Entity create_blueprint(const std::string& name)

@@ -3,7 +3,7 @@ Knife {
     Item{}
     MeleeAttack{
         accuracy{0}
-        damage{1d3+1}
+        damage{1d3+2}
     }
     Visual{/ color{0 0 100} priority{-1}}
 }

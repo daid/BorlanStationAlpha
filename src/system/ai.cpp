@@ -3,10 +3,8 @@
 #include "random.h"
 #include "map.h"
 #include "messagelog.h"
-#include "health.h"
+#include "action/move.h"
 
-
-int action_move(ECS::Entity e, Vector2i offset);
 
 void AISystem::run()
 {
@@ -24,11 +22,7 @@ void AISystem::run()
                 break;
             case Enemy::Attack:
                 if (e.has<MeleeAttack>()) {
-                    auto diff = position - player_position;
-                    if (std::max(std::abs(diff.x), std::abs(diff.y)) < 2) {
-                        mlog.add("@ attacks for @ damage", e.get<Name>(), HealthSystem::takeDamage(player, e.get<MeleeAttack>().damage()));
-                        enemy.delay_turns = 10;
-                    }else if (map.line_of_sight(position, player_position) > 0.1) {
+                    if (map.line_of_sight(position, player_position) > 0.1) {
                         Vector2i offset{0, 0};
                         if (position.x < player_position.x) offset.x = 1;
                         if (position.x > player_position.x) offset.x =-1;

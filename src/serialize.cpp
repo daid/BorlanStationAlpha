@@ -38,6 +38,13 @@ REGISTER_TAG(Solid)
 REGISTER_TAG(Airtight)
 REGISTER_TAG(BlockVision)
 REGISTER_TAG(Door)
+REGISTER_TAG(Player)
+REGISTER(Inventory) {
+    entity.set(Inventory{});
+}
+REGISTER(Organic) {
+    entity.set(Organic{info.num(0, "oxygen_usage", 0.02)});
+}
 REGISTER(Enemy) {
     entity.set(Enemy{});
 }

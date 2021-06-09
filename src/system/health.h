@@ -2,11 +2,16 @@
 
 #include "components.h"
 
+enum class DamageType {
+    Suffocate,
+    Fire,
+    Melee,
+};
 
 class HealthSystem : public ecs::System<HealthSystem, 1>
 {
 public:
     void run();
 
-    static int takeDamage(ECS::Entity e, int amount);
+    static int takeDamage(ECS::Entity e, DamageType type, int amount);
 };

@@ -20,12 +20,15 @@ void HealthSystem::run()
     }
 }
 
-int HealthSystem::takeDamage(ECS::Entity e, int amount)
+int HealthSystem::takeDamage(ECS::Entity e, DamageType type, int amount)
 {
     if (!e.has<Health>()) return 0;
     auto& health = e.get<Health>();
-    if (e.has<DamageReduction>()) {
-        amount = std::max(0, amount - e.get<DamageReduction>().amount);
+
+    if (type != DamageType::Suffocate) {
+        if (e.has<DamageReduction>()) {
+            amount = std::max(0, amount - e.get<DamageReduction>().amount);
+        }
     }
     health.current = std::max(0, health.current - amount);
     return amount;

@@ -14,6 +14,7 @@
 #include "system/ai.h"
 #include "system/door.h"
 #include "system/health.h"
+#include "system/vacuum.h"
 
 #include "view/map.h"
 #include "view/hud.h"
@@ -27,6 +28,7 @@ ecs::Systems<
     DoorSystem,
     OxygenSystem,
     HealthSystem,
+    VacuumSystem,
     VisionSystem
 > systems;
 
@@ -56,11 +58,7 @@ int main(int argc, char** argv)
 
     Mapgen mg;
 
-    auto player = engine.create();
-    player.set(Position{mg.start}).set(Visual{'@', HsvColor(0, 0, 100), 10}).set<Player>().set(Inventory{});
-    player.set(Health{20, 40}).set(Organic{0.02});
-    player.set<Solid>();
-    player.set(Light{10, HsvColor(0, 0, 50)});
+    auto player = create_blueprint("Player").set(Position{mg.start});
 
     Frontend frontend;
     MapView map_view;

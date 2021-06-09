@@ -21,6 +21,9 @@ struct Position : public Vector2i
     void on_add(ecs::EntityBase e);
     void on_remove(ecs::EntityBase e);
 };
+struct VacuumFloating : public Vector2i {
+    int delay{10};
+};
 
 struct Solid {};
 struct Airtight{};
@@ -82,7 +85,8 @@ struct Organic {
 };
 
 using ECS = ecs::Engine<
-    Position, Health, Name, Visual,
+    Position, VacuumFloating,
+    Health, Name, Visual,
     Solid, Airtight, BlockVision, Light, Door, OpenDoor,
     Player,
     Item, Inventory, InInventory,

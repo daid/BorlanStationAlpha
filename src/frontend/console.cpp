@@ -143,6 +143,8 @@ uint32_t Frontend::get_input()
                 if (strcmp(buf, "[D") == 0) return INPUT_LEFT;
                 if (strcmp(buf, "[H") == 0) return INPUT_UP_LEFT;
                 if (strcmp(buf, "[F") == 0) return INPUT_DOWN_LEFT;
+                if (strcmp(buf, "[1~") == 0) return INPUT_UP_LEFT;
+                if (strcmp(buf, "[4~") == 0) return INPUT_DOWN_LEFT;
                 if (strcmp(buf, "[5~") == 0) return INPUT_UP_RIGHT;
                 if (strcmp(buf, "[6~") == 0) return INPUT_DOWN_RIGHT;
 

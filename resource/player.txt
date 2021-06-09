@@ -1,0 +1,10 @@
+Player {
+    Visual{@ color{0 0 100} priority{10}}
+    Player{}
+    Inventory{}
+    Health{50 50}
+    Organic{0.02}
+    MeleeAttack{accuracy{0} damage{1d2}}
+    Solid{}
+    Light{10 color{0, 0, 50}}
+}
