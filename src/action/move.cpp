@@ -41,7 +41,7 @@ int action_melee_attack(ECS::Entity e, Vector2i position)
                     mlog.add("@ misses you", e.get<Name>());
             } else {
                 if (e.has<Player>())
-                    mlog.add("You attack @ for @ damage", target.get<Name>(), damage);
+                    mlog.add("You attack the @ for @ damage", target.get<Name>(), damage);
                 else
                     mlog.add("@ attacks for @ damage", e.get<Name>(), damage);
             }

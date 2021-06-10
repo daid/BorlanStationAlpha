@@ -37,6 +37,10 @@ int HealthSystem::takeDamage(ECS::Entity e, DamageType type, int amount)
             if (suit.has<DamageReduction>()) {
                 amount = std::max(0, amount - suit.get<DamageReduction>().amount);
             }
+            if (suit.has<Health>()) {
+                auto& h = suit.get<Health>();
+                h.current = std::max(0, h.current - amount);
+            }
         }
     }
     health.current = std::max(0, health.current - amount);
