@@ -58,7 +58,10 @@ struct WieldBy : public ecs::EntityBase {  // This entity is wielded by a specif
     void on_add(ecs::EntityBase e);
     void on_remove(ecs::EntityBase e);
 };
-
+struct OxygenStorage {
+    float current;
+    float max;
+};
 struct Inventory {
     std::vector<ecs::EntityBase> contents;
 };
@@ -76,8 +79,7 @@ struct Enemy {
     int delay_turns{0};
 };
 
-struct MeleeAttack
-{
+struct MeleeAttack {
     int accuracy;
     Roll damage;
 };
@@ -97,7 +99,7 @@ using ECS = ecs::Engine<
     Health, Name, Visual,
     Solid, Airtight, BlockVision, Light, Door, OpenDoor,
     Player,
-    Item, Suit, Wearing, WornBy, Weapon, Wielding, WieldBy,
+    Item, Suit, Wearing, WornBy, Weapon, Wielding, WieldBy, OxygenStorage,
     Inventory, InInventory,
     Enemy, MeleeAttack, DamageReduction,
     Organic

@@ -12,6 +12,7 @@ VacuumSuit {
     Item{} Suit{}
     Health{50 50}
     DamageReduction{1}
+    OxygenStorage{5.0 5.0}
     Visual{[ color{0 0 100} priority{-1}}
 }
 BodyArmor {

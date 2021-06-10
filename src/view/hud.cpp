@@ -33,6 +33,11 @@ void HudView::draw_stats(Frontend& frontend, Vector2i p, Vector2i size)
         frontend.draw(p.x, p.y++, format("HP: @/@", health.current, health.max), fg);
         if (e.has<Organic>()) {
             float o2 = map(position).oxygen;
+            if (e.has<Wearing>()) {
+                const auto suit = engine.upgrade(e.get<Wearing>());
+                if (suit.has<OxygenStorage>())
+                    o2 = std::max(o2, suit.get<OxygenStorage>().current / suit.get<OxygenStorage>().max);
+            }
             frontend.draw(p.x, p.y, "O2: ", fg);
             HsvColor c{240, 50, 100};
             if (o2 < 0.5)

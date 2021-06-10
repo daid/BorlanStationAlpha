@@ -10,17 +10,22 @@ static const std::array<Vector2i, 8> DIRECTIONS = {{{-1,-1},{-1,0},{-1,1}, {0,-1
 void OxygenSystem::run()
 {
     for(auto&& [e, organic, position] : engine.query<Organic, Position>()) {
+        organic.suffocate_count++;
         if (map(position).oxygen > organic.oxygen_usage * 5.0f) {
             map(position).oxygen -= organic.oxygen_usage;
             organic.suffocate_count = 0;
-        } else {
-            if (e.has<Player>())
-                mlog.add("You cannot breathe!");
-            
-            if (organic.suffocate_count > 3)
-                HealthSystem::takeDamage(e, DamageType::Suffocate, 5 * (organic.suffocate_count / 4));
-            organic.suffocate_count++;
+        } else if (e.has<Wearing>()) {
+            auto suit = engine.upgrade(e.get<Wearing>());
+            if (suit.has<OxygenStorage>() && suit.get<OxygenStorage>().current > 0.0) {
+                auto& o2storage = suit.get<OxygenStorage>();
+                o2storage.current = std::max(0.0f, o2storage.current - organic.oxygen_usage);
+                organic.suffocate_count = 0;
+            }
         }
+        if (organic.suffocate_count > 0 && e.has<Player>())
+            mlog.add("You cannot breathe!");
+        if (organic.suffocate_count > 4)
+            HealthSystem::takeDamage(e, DamageType::Suffocate, 5 * (organic.suffocate_count / 4));
     }
 
     airtight.resize(map.size(), 0);

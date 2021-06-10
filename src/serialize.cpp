@@ -41,6 +41,9 @@ REGISTER_TAG(Airtight)
 REGISTER_TAG(BlockVision)
 REGISTER_TAG(Door)
 REGISTER_TAG(Player)
+REGISTER(OxygenStorage) {
+    entity.set(OxygenStorage{info.flt(0, "current", 0), info.flt(1, "max", 0)});
+}
 REGISTER(Inventory) {
     entity.set(Inventory{});
 }
@@ -99,8 +102,10 @@ float SerializationInfo::flt(size_t index, std::string_view key, float def) cons
     if (kwargs.find(key) != kwargs.end()) s = kwargs.find(key)->second;
     if (args.size() > index) s = args[index];
     if (!s.empty()) {
-        int result = def;
-        std::from_chars(s.data(), s.data() + s.size(), result);
+        char* ptr = nullptr;
+        float result = std::strtof(s.data(), &ptr);
+        if (ptr == s.data())
+            return def;
         return result;
     }
     return def;

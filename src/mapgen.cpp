@@ -219,7 +219,7 @@ Mapgen::Mapgen()
             }
         }
 
-        for(int n=0; n<10; n++)
+        for(int n=0; n<3; n++)
             create_blueprint("SpiderDroid").set(Position{room.position + room.size / 2});
     }
     create_blueprint("Knife").set(Position{start});
