@@ -219,19 +219,23 @@ Mapgen::Mapgen()
             }
         }
 
-        create_blueprint("Knife").set(Position{room.position + room.size / 2});
+        for(int n=0; n<10; n++)
+            create_blueprint("SpiderDroid").set(Position{room.position + room.size / 2});
     }
+    create_blueprint("Knife").set(Position{start});
     create_blueprint("VacuumSuit").set(Position{start});
     create_blueprint("BodyArmor").set(Position{start});
 
 
     for(int y=0; y<data.size().y; y++) {
         for(int x=0; x<data.size().x; x++) {
-            map(x, y).floor = true;
+            auto& cell = map(x, y);
+            cell.floor = true;
+            cell.oxygen = 1.0;
             switch(data(x, y)) {
-            case Unset: map(x, y).floor = false; break;
-            case Vacuum: map(x, y).floor = false; break;
-            case Floor: map(x, y).oxygen = 1.0; break;
+            case Unset: cell.floor = false; cell.oxygen = 0.0; break;
+            case Vacuum: cell.floor = false; cell.oxygen = 0.0; break;
+            case Floor: break;
             case Wall: create_blueprint("Wall").set(Position{{x, y}}); break;
             case ThinWall:
                 if (data(x - 1, y) <= Vacuum || data(x + 1, y) <= Vacuum)

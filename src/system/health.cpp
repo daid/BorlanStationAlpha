@@ -1,6 +1,7 @@
 #include "health.h"
 #include "action/move.h"
 #include "messagelog.h"
+#include "map.h"
 
 
 void HealthSystem::run()
@@ -9,6 +10,8 @@ void HealthSystem::run()
         if (health.current <= 0) {
             if (e.has<Player>())
                 mlog.add("You died");
+            if (e.has<Enemy>() && map(e.get<Position>()).visible)
+                mlog.add("@ died", e.get<Name>());
             if (e.has<Inventory>()) {
                 auto& inv = e.get<Inventory>();
                 for(auto i : engine.upgrade(inv.contents)) {
@@ -28,6 +31,12 @@ int HealthSystem::takeDamage(ECS::Entity e, DamageType type, int amount)
     if (type != DamageType::Suffocate) {
         if (e.has<DamageReduction>()) {
             amount = std::max(0, amount - e.get<DamageReduction>().amount);
+        }
+        if (e.has<Wearing>()) {
+            auto suit = engine.upgrade(e.get<Wearing>());
+            if (suit.has<DamageReduction>()) {
+                amount = std::max(0, amount - suit.get<DamageReduction>().amount);
+            }
         }
     }
     health.current = std::max(0, health.current - amount);

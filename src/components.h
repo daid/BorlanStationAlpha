@@ -48,16 +48,21 @@ struct Visual
 struct Item {}; //Entity can be picked up and carried around in inventory
 struct Suit {}; //Entity can be equiped as a suit/armor
 struct Wearing : public ecs::EntityBase {}; // Which entity is equiped as a suit
-struct WornBy : public ecs::EntityBase {}; // We are equiped by a specific entity
+struct WornBy : public ecs::EntityBase { // We are equiped by a specific entity
+    void on_add(ecs::EntityBase e);
+    void on_remove(ecs::EntityBase e);
+};
+struct Weapon{};
+struct Wielding : public ecs::EntityBase {}; // Which entity we have in hand
+struct WieldBy : public ecs::EntityBase {  // This entity is wielded by a specific entity
+    void on_add(ecs::EntityBase e);
+    void on_remove(ecs::EntityBase e);
+};
 
-struct Inventory
-{
+struct Inventory {
     std::vector<ecs::EntityBase> contents;
 };
-struct InInventory
-{
-    ecs::EntityBase container;
-
+struct InInventory : public ecs::EntityBase {
     void on_add(ecs::EntityBase e);
     void on_remove(ecs::EntityBase e);
 };
@@ -92,7 +97,7 @@ using ECS = ecs::Engine<
     Health, Name, Visual,
     Solid, Airtight, BlockVision, Light, Door, OpenDoor,
     Player,
-    Item, Suit, Wearing, WornBy,
+    Item, Suit, Wearing, WornBy, Weapon, Wielding, WieldBy,
     Inventory, InInventory,
     Enemy, MeleeAttack, DamageReduction,
     Organic

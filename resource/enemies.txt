@@ -1,8 +1,7 @@
 SpiderDroid {
     Name{Spider Droid}
     Health{10 10}
-    Enemy{}
-    Solid{}
+    Enemy{} Solid{}
     MeleeAttack{
         accuracy{3}
         damage{1d3+3}

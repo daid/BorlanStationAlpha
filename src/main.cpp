@@ -86,7 +86,7 @@ int main(int argc, char** argv)
             case INPUT_UP_LEFT: execute_turns = action_move(player, Vector2i{-1, -1}); break;
             case INPUT_DOWN_RIGHT: execute_turns = action_move(player, Vector2i{1, 1}); break;
             case INPUT_UP_RIGHT: execute_turns = action_move(player, Vector2i{1, -1}); break;
-            case 'p': execute_turns = action_pickup(player); break;
+            case 'g': execute_turns = action_pickup(player); break;
             case 'd': {
                 auto res = select_from_inventory(frontend, player.get<Inventory>(), "Which item to drop?");
                 if (res.has_value()) {
