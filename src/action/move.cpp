@@ -1,6 +1,7 @@
 #include "move.h"
 #include "map.h"
 #include "messagelog.h"
+#include "attack.h"
 #include "system/door.h"
 #include "system/health.h"
 
@@ -16,40 +17,6 @@ int action_open_door(Vector2i position)
     return 0;
 }
 
-int action_melee_attack(ECS::Entity e, Vector2i position)
-{
-    if (!e.has<MeleeAttack>())
-        return 0;
-    auto attack = e.get<MeleeAttack>();
-    if (e.has<Wielding>()) {
-        auto weapon = engine.upgrade(e.get<Wielding>());
-        if (weapon.has<MeleeAttack>())
-            attack = weapon.get<MeleeAttack>();
-    }
-    int accuracy = 10 + attack.accuracy;
-
-    for(auto target : map(position).entities) {
-        if ((e.has<Player>() && target.has<Enemy>()) || (e.has<Enemy>() && target.has<Player>())) {
-            auto damage = HealthSystem::takeDamage(target, DamageType::Melee, attack.damage());
-            auto roll = Roll(3, 6, 0)();
-            if ((roll > 4 && roll > accuracy) || roll > 16)
-                damage = 0;
-            if (damage == 0) {
-                if (e.has<Player>())
-                    mlog.add("You miss the @", target.get<Name>());
-                else
-                    mlog.add("@ misses you", e.get<Name>());
-            } else {
-                if (e.has<Player>())
-                    mlog.add("You attack the @ for @ damage", target.get<Name>(), damage);
-                else
-                    mlog.add("@ attacks for @ damage", e.get<Name>(), damage);
-            }
-            return 10;
-        }
-    }
-    return 0;
-}
 
 int action_move(ECS::Entity e, Vector2i offset)
 {

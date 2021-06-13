@@ -33,6 +33,11 @@ public:
         return x * v.x + y * v.y;
     }
 };
+template<> inline int Vector2<int>::length() {
+    if (std::abs(x) > std::abs(y))
+        return std::abs(x) + std::abs(y) / 2;
+    return std::abs(y) + std::abs(x) / 2;
+}
 
 template <typename T> static inline Vector2<T> operator -(const Vector2<T>& a) { return Vector2<T>{-a.x, -a.y}; }
 template <typename T> static inline Vector2<T> operator +(const Vector2<T>& a, const Vector2<T>& b) { return Vector2<T>{a.x+b.x, a.y+b.y}; }

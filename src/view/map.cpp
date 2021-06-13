@@ -2,6 +2,8 @@
 #include "../map.h"
 #include "components.h"
 
+Vector2i MapView::camera_position;
+
 
 void MapView::draw(Frontend& frontend)
 {

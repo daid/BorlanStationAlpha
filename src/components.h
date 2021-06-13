@@ -44,6 +44,7 @@ struct Visual
     HsvColor color;
     int priority{0};
 };
+struct SingleShotVisualEffect{};
 
 struct Item {}; //Entity can be picked up and carried around in inventory
 struct Suit {}; //Entity can be equiped as a suit/armor
@@ -82,6 +83,15 @@ struct Enemy {
 struct MeleeAttack {
     int accuracy;
     Roll damage;
+
+    int turns{10}; // now many turns does this attack use
+};
+struct RangedAttack {
+    int accuracy;
+    Roll damage;
+    int accuracy_range; //for each X cells: accuracy-1
+
+    int turns{10}; // now many turns does this attack use
 };
 
 struct DamageReduction {
@@ -96,12 +106,12 @@ struct Organic {
 
 using ECS = ecs::Engine<
     Position, VacuumFloating,
-    Health, Name, Visual,
+    Health, Name, Visual, SingleShotVisualEffect,
     Solid, Airtight, BlockVision, Light, Door, OpenDoor,
     Player,
     Item, Suit, Wearing, WornBy, Weapon, Wielding, WieldBy, OxygenStorage,
     Inventory, InInventory,
-    Enemy, MeleeAttack, DamageReduction,
+    Enemy, MeleeAttack, RangedAttack, DamageReduction,
     Organic
 >;
 extern ECS engine;

@@ -19,8 +19,10 @@
 #include "view/map.h"
 #include "view/hud.h"
 #include "view/menu.h"
+#include "view/selectposition.h"
 
 #include "action/move.h"
+#include "action/attack.h"
 
 ECS engine;
 ecs::Systems<
@@ -52,6 +54,22 @@ std::optional<ECS::Entity> select_from_inventory(Frontend& frontend, Inventory& 
     return {};
 }
 
+std::optional<Vector2i> select_target(Frontend& frontend, ECS::Entity player) {
+    int best_dist = std::numeric_limits<int>::max();
+    Vector2i target_position;
+    for(auto&& [e, position, enemy] : engine.query<Position, Enemy>()) {
+        if (map(position).visible && (player.get<Position>() - position).length() < best_dist) {
+            best_dist = (player.get<Position>() - position).length();
+            target_position = position;
+        }
+    }
+    if (best_dist == std::numeric_limits<int>::max())
+        target_position = player.get<Position>();
+    
+    SelectPositionView view(player.get<Position>(), target_position);
+    return view.get_result(frontend);
+}
+
 int main(int argc, char** argv)
 {
     load_blueprints();
@@ -72,6 +90,9 @@ int main(int argc, char** argv)
 
     while(1) {
         View::draw_views(frontend);
+
+        for(auto&& [e] : engine.query<SingleShotVisualEffect>())
+            e.destroy();
 
         auto input = frontend.get_input();
         if (input == INPUT_QUIT) return 0;
@@ -97,6 +118,16 @@ int main(int argc, char** argv)
                 auto res = select_from_inventory(frontend, player.get<Inventory>(), "Which item to equip?");
                 if (res.has_value()) {
                     execute_turns = action_equip(player, res.value());
+                }
+            }break;
+            case 'f': {
+                if (player.has<RangedAttack>() || (player.has<Wielding>() && engine.upgrade(player.get<Wielding>()).has<RangedAttack>())) {
+                    auto res = select_target(frontend, player);
+                    if (res.has_value()) {
+                        execute_turns = action_ranged_attack(player, res.value());
+                    }
+                } else {
+                    mlog.add("Cannot fire, got no ranged weapon.");
                 }
             }break;
             case '.': execute_turns = 10; break;

@@ -93,6 +93,10 @@ void Map::fov_step(Vector2i center, Vector2i dir, int radius, int row, float fmi
     fov_step(center, dir, radius, row + 1, fmin, fmax, callback);
 }
 
+bool Map::inside(Vector2i position) {
+    return position.x >= 0 && position.y >= 0 && position.x < size().x && position.y < size().y;
+}
+
 void Position::on_add(ecs::EntityBase e)
 {
     map(x, y).entities.insert(engine.upgrade(e));

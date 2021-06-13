@@ -8,6 +8,5 @@ class MapView : public View
 public:
     void draw(Frontend& frontend) override;
 
-private:
-    Vector2i camera_position;
+    static Vector2i camera_position;
 };

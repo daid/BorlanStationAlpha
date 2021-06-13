@@ -6,6 +6,7 @@ enum class DamageType {
     Suffocate,
     Fire,
     Melee,
+    Bullet,
 };
 
 class HealthSystem : public ecs::System<HealthSystem, 1>

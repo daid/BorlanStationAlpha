@@ -60,7 +60,10 @@ REGISTER(Visual) {
     entity.set(Visual{info.chr(0, "c", '?'), info.color(1, "color"), info.num(2, "priority", 0)});
 }
 REGISTER(MeleeAttack) {
-    entity.set(MeleeAttack{info.num(0, "accuracy", 0), info.str(1, "damage", "0")});
+    entity.set(MeleeAttack{info.num(0, "accuracy", 0), info.str(1, "damage", "0"), info.num(2, "turns", 10)});
+}
+REGISTER(RangedAttack) {
+    entity.set(RangedAttack{info.num(0, "accuracy", 0), info.str(1, "damage", "0"), info.num(2, "accuracy_range", 3), info.num(3, "turns", 10)});
 }
 REGISTER(DamageReduction) {
     entity.set(DamageReduction{info.num(0, "amount", 0)});

@@ -24,6 +24,8 @@ public:
 
     //Get the amount of sight we have from a tile to a tile, in the range 0.0-1.0
     float line_of_sight(Vector2i start, Vector2i end);
+
+    bool inside(Vector2i position);
 private:
     void fov_step(Vector2i center, Vector2i dir, int radius, int row, float fmin, float fmax, const FovCallbackT& callback);
 };
