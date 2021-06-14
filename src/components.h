@@ -7,6 +7,9 @@
 
 #include <vector>
 
+enum class AmmoType {
+    Bullet,
+};
 
 struct Health
 {
@@ -59,6 +62,11 @@ struct WieldBy : public ecs::EntityBase {  // This entity is wielded by a specif
     void on_add(ecs::EntityBase e);
     void on_remove(ecs::EntityBase e);
 };
+struct Ammo{
+    int amount;
+    int max;
+    AmmoType type;
+};
 struct OxygenStorage {
     float current;
     float max;
@@ -109,7 +117,7 @@ using ECS = ecs::Engine<
     Health, Name, Visual, SingleShotVisualEffect,
     Solid, Airtight, BlockVision, Light, Door, OpenDoor,
     Player,
-    Item, Suit, Wearing, WornBy, Weapon, Wielding, WieldBy, OxygenStorage,
+    Item, Suit, Wearing, WornBy, Weapon, Wielding, WieldBy, Ammo, OxygenStorage,
     Inventory, InInventory,
     Enemy, MeleeAttack, RangedAttack, DamageReduction,
     Organic

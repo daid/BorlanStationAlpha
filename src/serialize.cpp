@@ -36,6 +36,11 @@ REGISTER(Name) {
 REGISTER_TAG(Item)
 REGISTER_TAG(Suit)
 REGISTER_TAG(Weapon)
+REGISTER(Ammo) {
+    AmmoType type = AmmoType::Bullet;
+    if (info.str(2, "type", "") == "Bullet") type = AmmoType::Bullet;
+    entity.set(Ammo{info.num(0, "amount", 0), info.num(1, "max", 0), type});
+}
 REGISTER_TAG(Solid)
 REGISTER_TAG(Airtight)
 REGISTER_TAG(BlockVision)

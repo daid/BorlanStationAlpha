@@ -3,6 +3,7 @@
 #include "messagelog.h"
 #include "components.h"
 #include "format.h"
+#include "name.h"
 #include <array>
 #include <iostream>
 
@@ -45,18 +46,13 @@ void HudView::draw_stats(Frontend& frontend, Vector2i p, Vector2i size)
         if (e.has<Wielding>()) {
             auto weapon = engine.upgrade(e.get<Wielding>());
             frontend.draw(p.x, p.y++, "Weapon:", fg);
-            frontend.draw(p.x+1, p.y++, weapon.get<Name>(), fg);
+            frontend.draw(p.x+1, p.y++, get_name(weapon), fg);
         }
 
         if (e.has<Wearing>()) {
             auto suit = engine.upgrade(e.get<Wearing>());
-            if (suit.has<Health>()) {
-                const auto& h = suit.get<Health>();
-                frontend.draw(p.x, p.y++, format("Suit: [@%]", (100 * h.current / h.max)), fg);
-            } else {
-                frontend.draw(p.x, p.y++, "Suit:", fg);
-            }
-            frontend.draw(p.x+1, p.y++, suit.get<Name>(), fg);
+            frontend.draw(p.x, p.y++, "Suit:", fg);
+            frontend.draw(p.x+1, p.y++, get_name(suit), fg);
             if (suit.has<OxygenStorage>()) {
                 float o2 = std::max(o2, suit.get<OxygenStorage>().current / suit.get<OxygenStorage>().max);
                 frontend.draw(p.x+1, p.y, "O2: ", fg);
@@ -72,7 +68,7 @@ void HudView::draw_stats(Frontend& frontend, Vector2i p, Vector2i size)
         p.y++;
         frontend.draw(p.x, p.y++, "Inventory:", fg);
         for(auto item : engine.upgrade(inventory.contents)) {
-            frontend.draw(p.x+1, p.y++, item.get<Name>(), fg);
+            frontend.draw(p.x+1, p.y++, get_name(item), fg);
         }
 
         p.y++;
@@ -83,7 +79,7 @@ void HudView::draw_stats(Frontend& frontend, Vector2i p, Vector2i size)
                     frontend.draw(p.x, p.y++, "On floor:", fg);
                     first = false;
                 }
-                frontend.draw(p.x+1, p.y++, ce.get<Name>(), fg);
+                frontend.draw(p.x+1, p.y++, get_name(ce), fg);
             }
         }
     }

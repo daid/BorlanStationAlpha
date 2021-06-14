@@ -226,6 +226,9 @@ Mapgen::Mapgen()
     create_blueprint("Pistol").set(Position{start});
     create_blueprint("VacuumSuit").set(Position{start});
     create_blueprint("BodyArmor").set(Position{start});
+    create_blueprint("BulletAmmo").set(Position{start});
+    create_blueprint("BulletAmmo").set(Position{start});
+    create_blueprint("BulletAmmo").set(Position{start});
 
 
     for(int y=0; y<data.size().y; y++) {

@@ -42,11 +42,31 @@ int action_move(ECS::Entity e, Vector2i offset)
     return 10;
 }
 
+void mergeAmmo(Inventory& inv, ECS::Entity ammo_entity)
+{
+    auto& ammo = ammo_entity.get<Ammo>();
+    for(auto e : engine.upgrade(inv.contents)) {
+        if (e.has<Ammo>() && !e.has<Weapon>() && e.get<Ammo>().type == ammo.type) {
+            auto& other = e.get<Ammo>();
+            int add = std::min(ammo.amount, other.max - other.amount);
+            other.amount += add;
+            ammo.amount -= add;
+        }
+    }
+    if (ammo.amount == 0)
+        ammo_entity.destroy();
+}
+
 int action_pickup(ECS::Entity e)
 {
     for(auto ce : map(e.get<Position>()).entities) {
         if (ce.has<Item>()) {
             ce.remove<Position>();
+            if (ce.has<Ammo>()) {
+                mergeAmmo(e.get<Inventory>(), ce);
+                if (!ce.has<Ammo>())
+                    return 5;
+            }
             ce.set(InInventory{e});
             return 5;
         }

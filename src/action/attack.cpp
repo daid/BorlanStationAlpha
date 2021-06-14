@@ -62,6 +62,15 @@ int action_ranged_attack(ECS::Entity owner, Vector2i position)
         auto weapon = engine.upgrade(owner.get<Wielding>());
         if (weapon.has<RangedAttack>())
             attack = weapon.get<RangedAttack>();
+        if (weapon.has<Ammo>()) {
+            auto& ammo = weapon.get<Ammo>();
+            if (ammo.amount == 0) {
+                if (owner.has<Player>())
+                    mlog.add("Your @ is empty!", weapon.get<Name>());
+                return 0;
+            }
+            ammo.amount -= 1;
+        }
     }
     if (attack.accuracy == -10)
         return 0;

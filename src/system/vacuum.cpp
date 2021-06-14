@@ -17,8 +17,9 @@ void VacuumSystem::run()
             if (map.has_entity_with<Solid>(position + floating)) {
                 e.remove<VacuumFloating>();
             } else {
+                Position new_position{position + floating};
                 e.remove<Position>();
-                e.set(Position{position + floating});
+                e.set(new_position);
                 floating.delay = 9;
             }
         }

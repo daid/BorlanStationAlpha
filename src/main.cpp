@@ -4,6 +4,7 @@
 #include "cell.h"
 #include "map.h"
 #include "ecs.h"
+#include "name.h"
 #include "mapgen.h"
 #include "components.h"
 #include "messagelog.h"
@@ -39,7 +40,7 @@ std::optional<ECS::Entity> select_from_inventory(Frontend& frontend, Inventory& 
 {
     std::vector<std::string> options;
     for(auto e : engine.upgrade(inv.contents)) {
-        options.push_back(e.get<Name>());
+        options.push_back(get_name(e));
     }
     if (options.empty()) {
         mlog.add("Got no items.");
