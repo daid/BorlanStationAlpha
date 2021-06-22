@@ -83,9 +83,11 @@ struct Enemy {
     enum State {
         Wander,
         Attack,
+        Seek,
     } state = Wander;
 
     int delay_turns{0};
+    Vector2i last_known_target_position;
 };
 
 struct MeleeAttack {
